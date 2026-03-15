@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/karen.kemble-diaz/dev/Europe_dashboard/**)"
+    ]
+  }
+}
