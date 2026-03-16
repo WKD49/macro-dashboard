@@ -1,10 +1,5 @@
-import { fetchAllIndicators, fetchLastSync } from "@/lib/macro/queries";
-import { CategorySection } from "@/components/dashboard/CategorySection";
-import {
-  CATEGORY_SLUGS,
-  CATEGORY_LABELS,
-  type MacroIndicatorRow,
-} from "@/lib/macro/types";
+import { fetchAllIndicators, fetchCorrelations, fetchYieldCurveHistory, fetchSpreadHistory, fetchLastSync } from "@/lib/macro/queries";
+import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
 
 // Revalidate every 5 minutes (same pattern as existing dashboards)
 export const revalidate = 300;
@@ -21,26 +16,13 @@ function fmtSyncTime(ts: string | null): string {
 }
 
 export default async function DashboardPage() {
-  const [indicators, lastSync] = await Promise.all([
+  const [indicators, correlations, curveHistory, spreadHistory, lastSync] = await Promise.all([
     fetchAllIndicators(),
+    fetchCorrelations(),
+    fetchYieldCurveHistory(),
+    fetchSpreadHistory(),
     fetchLastSync(),
   ]);
-
-  // Index rows by slug for quick lookup
-  const bySlug = new Map<string, MacroIndicatorRow>();
-  for (const row of indicators) {
-    bySlug.set(row.indicator, row);
-  }
-
-  // Group rows by category, preserving the defined order
-  const categories = Object.entries(CATEGORY_SLUGS).map(([key, slugs]) => ({
-    key,
-    label: CATEGORY_LABELS[key] ?? key,
-    rows: slugs.flatMap((s) => {
-      const row = bySlug.get(s);
-      return row ? [row] : [];
-    }),
-  }));
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -60,7 +42,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col gap-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {indicators.length === 0 ? (
           <div className="text-center py-20 text-gray-400">
             <p className="text-sm">No data yet.</p>
@@ -70,9 +52,7 @@ export default async function DashboardPage() {
             </p>
           </div>
         ) : (
-          categories.map(({ key, label, rows }) => (
-            <CategorySection key={key} title={label} rows={rows} />
-          ))
+          <DashboardTabs indicators={indicators} correlations={correlations} curveHistory={curveHistory} spreadHistory={spreadHistory} />
         )}
       </div>
     </main>

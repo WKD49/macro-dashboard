@@ -8,6 +8,10 @@
  */
 
 import { getServiceRoleClient } from "@/lib/supabase-server";
+// @ts-ignore
+import YahooFinance from "yahoo-finance2";
+
+const yf = new YahooFinance({ suppressNotices: ["yahooSurvey", "ripHistorical"] });
 
 // ---------------------------------------------------------------------------
 // Types
@@ -25,7 +29,7 @@ type IndicatorRow = {
   change_pct: number;
   currency: string;
   last_updated: string;
-  source: "stooq";
+  source: "stooq" | "yahoo";
 };
 
 // ---------------------------------------------------------------------------
@@ -34,25 +38,27 @@ type IndicatorRow = {
 // ---------------------------------------------------------------------------
 
 const STOOQ_INDICATORS: Array<[string, string, string]> = [
-  // Energy
-  ["brent_crude_usd", "brent",   "USD/bbl"],
-  ["wti_crude_usd",   "wti",     "USD/bbl"],
-  ["natural_gas_usd", "natgas",  "USD/MMBtu"],
-
   // Metals (USD) — GBP versions calculated separately
   ["gold_usd",   "xauusd", "USD/oz"],
   ["silver_usd", "xagusd", "USD/oz"],
-  ["copper_usd", "copper", "USD/lb"],
 
   // Currencies (also used to derive GBP metal prices)
-  ["dxy",     "dxy",     "Index"],
   ["gbp_usd", "gbpusd",  "Rate"],
   ["eur_usd", "eurusd",  "Rate"],
   ["gbp_eur", "gbpeur",  "Rate"],
   ["usd_jpy", "usdjpy",  "Rate"],
 
-  // Volatility
-  ["vix", "vix.us", "Index"],
+  // Volatility — fetched from Yahoo (vix.us not on Stooq)
+];
+
+// Yahoo Finance tickers for instruments not available on Stooq
+const YAHOO_INDICATORS: Array<[string, string, string]> = [
+  ["brent_crude_usd", "BZ=F",      "USD/bbl"],
+  ["wti_crude_usd",   "CL=F",      "USD/bbl"],
+  ["natural_gas_usd", "NG=F",      "USD/MMBtu"],
+  ["copper_usd",      "HG=F",      "USD/lb"],
+  ["dxy",             "DX=F",      "Index"],
+  ["vix",             "^VIX",      "Index"],
 ];
 
 // ---------------------------------------------------------------------------
@@ -114,6 +120,30 @@ async function fetchStooq(ticker: string): Promise<DailyBar[] | null> {
 }
 
 // ---------------------------------------------------------------------------
+// Yahoo Finance fetcher
+// ---------------------------------------------------------------------------
+
+async function fetchYahoo(ticker: string): Promise<DailyBar[] | null> {
+  try {
+    const period2 = new Date();
+    const period1 = new Date(period2.getTime() - 10 * 86400_000); // 10 days back
+    const result = await yf.chart(ticker, { period1, period2, interval: "1d" }, { validateResult: false }) as any;
+    const rows = (result.quotes as any[]).filter((r: any) => r.close != null && Number.isFinite(r.close));
+    if (rows.length < 2) {
+      console.warn(`[yahoo] Fewer than 2 bars for ticker: ${ticker}`);
+      return null;
+    }
+    const bars: DailyBar[] = rows
+      .map((r: any) => ({ date: (r.date as Date).toISOString().slice(0, 10), close: r.close as number }))
+      .sort((a: DailyBar, b: DailyBar) => (a.date < b.date ? 1 : -1));
+    return bars;
+  } catch (err) {
+    console.warn(`[yahoo] Fetch error for ${ticker}: ${err}`);
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -149,11 +179,21 @@ async function main() {
     } else {
       errors.push({ indicator: slug, error: `no data from stooq ticker ${ticker}` });
     }
-    await sleep(400); // be polite to Stooq
+    await sleep(400);
+  }
+
+  for (const [slug, ticker] of YAHOO_INDICATORS) {
+    console.log(`[yahoo] Fetching ${slug} (${ticker})...`);
+    const bars = await fetchYahoo(ticker);
+    if (bars) {
+      rawData.set(slug, bars);
+    } else {
+      errors.push({ indicator: slug, error: `no data from yahoo ticker ${ticker}` });
+    }
   }
 
   // Build indicator rows from raw data
-  for (const [slug, _ticker, currency] of STOOQ_INDICATORS) {
+  for (const [slug, _ticker, currency] of [...STOOQ_INDICATORS, ...YAHOO_INDICATORS]) {
     const bars = rawData.get(slug);
     if (!bars) continue;
 
@@ -161,6 +201,7 @@ async function main() {
     const previous_value = bars[1].close;
     const change_pct = ((value - previous_value) / previous_value) * 100;
 
+    const isYahoo = YAHOO_INDICATORS.some(([s]) => s === slug);
     rows.push({
       indicator: slug,
       value,
@@ -168,7 +209,7 @@ async function main() {
       change_pct,
       currency,
       last_updated: now,
-      source: "stooq",
+      source: isYahoo ? "yahoo" : "stooq",
     });
   }
 

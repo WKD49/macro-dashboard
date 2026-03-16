@@ -1,8 +1,8 @@
 /**
  * sync-fred.ts
  * Fetches bond yield data from the FRED API (Federal Reserve).
- * Covers: US 10yr, US 2yr, UK 10yr Gilt, German 10yr Bund.
- * Calculates the US yield spread (10yr − 2yr).
+ * Covers: US 10yr, US 2yr, UK/DE/JP 10yr, UK/DE/JP 3M interbank rates.
+ * Calculates US yield spread, cross-country spreads, and non-US yield curve shapes.
  * Upserts results into macro_indicators and logs the run to macro_sync_log.
  *
  * Run: npm run sync:fred
@@ -30,7 +30,7 @@ type IndicatorRow = {
   change_pct: number;
   currency: string;
   last_updated: string;
-  source: "fred";
+  source: string;
 };
 
 // ---------------------------------------------------------------------------
@@ -48,10 +48,18 @@ type IndicatorRow = {
 // ---------------------------------------------------------------------------
 
 const FRED_SERIES: Array<[string, string, string]> = [
+  // Long-term government bond yields
   ["us_10yr_yield", "DGS10",             "%"],
   ["us_2yr_yield",  "DGS2",              "%"],
-  ["uk_10yr_yield", "IRLTLT01GBM156N",   "%"],
-  ["de_10yr_yield", "IRLTLT01DEM156N",   "%"],
+  // uk/de/jp 10yr are fetched from official daily sources below (BoE, Bundesbank, MOF)
+  // Short-term rates for yield curve shape (10yr − 3M for all four countries)
+  // US: 3M T-bill (daily). UK/DE/JP: 3M interbank (monthly harmonised).
+  // Using 3M for all four ensures consistent methodology across countries.
+  // Note: NY Fed recession model also uses 10yr vs 3M T-bill.
+  ["us_3m_rate",    "DGS3MO",            "%"],
+  ["uk_3m_rate",    "IR3TIB01GBM156N",   "%"],
+  ["de_3m_rate",    "IR3TIB01DEM156N",   "%"],
+  ["jp_3m_rate",    "IR3TIB01JPM156N",   "%"],
 ];
 
 // ---------------------------------------------------------------------------
@@ -90,6 +98,111 @@ async function fetchFredSeries(seriesId: string, apiKey: string): Promise<[numbe
     return [valid[0], valid[1]]; // [current, previous]
   } catch (err) {
     console.warn(`[fred] Fetch error for ${seriesId}: ${err}`);
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Daily official sources for UK / DE / JP 10yr yields
+// ---------------------------------------------------------------------------
+
+function formatBoEDate(d: Date): string {
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return `${String(d.getDate()).padStart(2,"0")}/${months[d.getMonth()]}/${d.getFullYear()}`;
+}
+
+/** Bank of England — UK 10yr nominal par gilt (series IUDMNPY, daily) */
+async function fetchBoECurrent(seriesCode: string): Promise<[number, number] | null> {
+  const today = new Date();
+  const from = new Date(today.getTime() - 30 * 86400_000); // last 30 calendar days
+  const url = `https://www.bankofengland.co.uk/boeapps/database/_iadb-FromShowColumns.asp?csv.x=yes&SeriesCodes=${seriesCode}&UsingCodes=Y&CSVF=TN&Datefrom=${formatBoEDate(from)}&Dateto=${formatBoEDate(today)}`;
+
+  try {
+    const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; macro-dashboard/1.0)" } });
+    if (!res.ok) { console.warn(`[fred] BoE HTTP ${res.status}`); return null; }
+    const text = await res.text();
+
+    const MON: Record<string, string> = {
+      Jan:"01",Feb:"02",Mar:"03",Apr:"04",May:"05",Jun:"06",
+      Jul:"07",Aug:"08",Sep:"09",Oct:"10",Nov:"11",Dec:"12",
+    };
+
+    const vals: number[] = [];
+    for (const line of text.trim().split("\n").slice(1)) {
+      const cols = line.split(",");
+      if (cols.length < 2) continue;
+      const parts = cols[0].trim().split(" ");
+      if (parts.length !== 3 || !MON[parts[1]]) continue;
+      const val = parseFloat(cols[1].trim());
+      if (!Number.isFinite(val)) continue;
+      vals.push(val);
+    }
+
+    // vals are oldest-first from BoE; reverse to get newest-first
+    vals.reverse();
+    if (vals.length < 2) { console.warn(`[fred] BoE: not enough valid rows for ${seriesCode}`); return null; }
+    return [vals[0], vals[1]];
+  } catch (err) {
+    console.warn(`[fred] BoE fetch error: ${err}`);
+    return null;
+  }
+}
+
+/** Bundesbank — DE 10yr Bund (daily, semicolon-separated CSV) */
+async function fetchBundesbankCurrent(): Promise<[number, number] | null> {
+  const url = "https://api.statistiken.bundesbank.de/rest/download/BBSSY/D.REN.EUR.A630.000000WT1010.A?format=csv&lang=en";
+
+  try {
+    const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; macro-dashboard/1.0)" } });
+    if (!res.ok) { console.warn(`[fred] Bundesbank HTTP ${res.status}`); return null; }
+    const text = await res.text();
+
+    const vals: number[] = [];
+    for (const line of text.trim().split("\n")) {
+      let cols = line.split(";");
+      if (cols.length < 2) cols = line.split(",");
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(cols[0].trim())) continue;
+      const rawVal = cols[1].trim();
+      if (rawVal === "." || rawVal === "") continue;
+      const val = parseFloat(rawVal);
+      if (!Number.isFinite(val)) continue;
+      vals.push(val);
+    }
+
+    // vals are oldest-first; take last two
+    if (vals.length < 2) { console.warn(`[fred] Bundesbank: not enough valid rows`); return null; }
+    return [vals[vals.length - 1], vals[vals.length - 2]];
+  } catch (err) {
+    console.warn(`[fred] Bundesbank fetch error: ${err}`);
+    return null;
+  }
+}
+
+/** MOF Japan — JP 10yr JGB (rolling recent CSV, column index 10 = 10Y) */
+async function fetchMofJapanCurrent(): Promise<[number, number] | null> {
+  const url = "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/jgbcme.csv";
+
+  try {
+    const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; macro-dashboard/1.0)" } });
+    if (!res.ok) { console.warn(`[fred] MOF Japan HTTP ${res.status}`); return null; }
+    const text = await res.text();
+
+    const vals: number[] = [];
+    for (const line of text.trim().split("\n").slice(1)) {
+      const cols = line.split(",");
+      if (cols.length < 11) continue;
+      const rawVal = cols[10].trim();
+      if (rawVal === "-" || rawVal === "") continue;
+      const val = parseFloat(rawVal);
+      if (!Number.isFinite(val)) continue;
+      vals.push(val);
+    }
+
+    // vals are oldest-first; take last two
+    if (vals.length < 2) { console.warn(`[fred] MOF Japan: not enough valid rows`); return null; }
+    return [vals[vals.length - 1], vals[vals.length - 2]];
+  } catch (err) {
+    console.warn(`[fred] MOF Japan fetch error: ${err}`);
     return null;
   }
 }
@@ -147,29 +260,85 @@ async function main() {
     });
   }
 
-  // Derive yield spread (US 10yr − US 2yr)
-  const us10 = fetchedValues.get("us_10yr_yield");
-  const us2  = fetchedValues.get("us_2yr_yield");
-
-  if (us10 && us2) {
-    const value = us10[0] - us2[0];
-    const previous_value = us10[1] - us2[1];
-    const change_pct = previous_value !== 0
-      ? ((value - previous_value) / Math.abs(previous_value)) * 100
-      : 0;
-
-    rows.push({
-      indicator: "us_yield_spread",
-      value,
-      previous_value,
-      change_pct,
-      currency: "%",
-      last_updated: now,
-      source: "fred",
-    });
+  // UK 10yr — Bank of England (daily)
+  console.log("[fred] Fetching uk_10yr_yield from Bank of England...");
+  const ukYield = await fetchBoECurrent("IUDMNPY");
+  if (ukYield) {
+    const [value, previous_value] = ukYield;
+    const change_pct = previous_value !== 0 ? ((value - previous_value) / Math.abs(previous_value)) * 100 : 0;
+    fetchedValues.set("uk_10yr_yield", ukYield);
+    rows.push({ indicator: "uk_10yr_yield", value, previous_value, change_pct, currency: "%", last_updated: now, source: "boe" });
   } else {
-    errors.push({ indicator: "us_yield_spread", error: "cannot calculate — US 10yr or 2yr data missing" });
-    console.warn("[fred] Cannot calculate yield spread — US 10yr or 2yr data missing");
+    errors.push({ indicator: "uk_10yr_yield", error: "no valid data from Bank of England" });
+  }
+
+  // DE 10yr — Bundesbank (daily)
+  console.log("[fred] Fetching de_10yr_yield from Bundesbank...");
+  const deYield = await fetchBundesbankCurrent();
+  if (deYield) {
+    const [value, previous_value] = deYield;
+    const change_pct = previous_value !== 0 ? ((value - previous_value) / Math.abs(previous_value)) * 100 : 0;
+    fetchedValues.set("de_10yr_yield", deYield);
+    rows.push({ indicator: "de_10yr_yield", value, previous_value, change_pct, currency: "%", last_updated: now, source: "bundesbank" });
+  } else {
+    errors.push({ indicator: "de_10yr_yield", error: "no valid data from Bundesbank" });
+  }
+
+  // JP 10yr — MOF Japan (daily)
+  console.log("[fred] Fetching jp_10yr_yield from MOF Japan...");
+  const jpYield = await fetchMofJapanCurrent();
+  if (jpYield) {
+    const [value, previous_value] = jpYield;
+    const change_pct = previous_value !== 0 ? ((value - previous_value) / Math.abs(previous_value)) * 100 : 0;
+    fetchedValues.set("jp_10yr_yield", jpYield);
+    rows.push({ indicator: "jp_10yr_yield", value, previous_value, change_pct, currency: "%", last_updated: now, source: "mof" });
+  } else {
+    errors.push({ indicator: "jp_10yr_yield", error: "no valid data from MOF Japan" });
+  }
+
+  // Cross-country yield spreads (US 10yr minus each foreign 10yr)
+  const us10 = fetchedValues.get("us_10yr_yield");
+  const spreadPairs: Array<[string, string, string]> = [
+    ["us_uk_spread", "uk_10yr_yield", "US-UK yield spread"],
+    ["us_de_spread", "de_10yr_yield", "US-DE yield spread"],
+    ["us_jp_spread", "jp_10yr_yield", "US-JP yield spread"],
+  ];
+
+  for (const [slug, foreignSlug] of spreadPairs) {
+    const foreign = fetchedValues.get(foreignSlug);
+    if (us10 && foreign) {
+      const value = us10[0] - foreign[0];
+      const previous_value = us10[1] - foreign[1];
+      const change_pct = previous_value !== 0
+        ? ((value - previous_value) / Math.abs(previous_value)) * 100
+        : 0;
+      rows.push({ indicator: slug, value, previous_value, change_pct, currency: "%pts", last_updated: now, source: "fred" });
+    } else {
+      errors.push({ indicator: slug, error: `cannot calculate — ${foreignSlug} data missing` });
+    }
+  }
+
+  // Yield curve shapes (10yr − 3M for all four countries — consistent methodology)
+  const curvePairs: Array<[string, string, string]> = [
+    ["us_yield_spread", "us_10yr_yield", "us_3m_rate"],
+    ["uk_yield_curve",  "uk_10yr_yield", "uk_3m_rate"],
+    ["de_yield_curve",  "de_10yr_yield", "de_3m_rate"],
+    ["jp_yield_curve",  "jp_10yr_yield", "jp_3m_rate"],
+  ];
+
+  for (const [slug, longSlug, shortSlug] of curvePairs) {
+    const longEnd  = fetchedValues.get(longSlug);
+    const shortEnd = fetchedValues.get(shortSlug);
+    if (longEnd && shortEnd) {
+      const value = longEnd[0] - shortEnd[0];
+      const previous_value = longEnd[1] - shortEnd[1];
+      const change_pct = previous_value !== 0
+        ? ((value - previous_value) / Math.abs(previous_value)) * 100
+        : 0;
+      rows.push({ indicator: slug, value, previous_value, change_pct, currency: "%pts", last_updated: now, source: "fred" });
+    } else {
+      errors.push({ indicator: slug, error: `cannot calculate — ${longSlug} or ${shortSlug} data missing` });
+    }
   }
 
   // Upsert all rows

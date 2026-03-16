@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "sync:stooq": "tsx --env-file .env.local scripts/sync-stooq.ts",
-    "sync:fred": "tsx --env-file .env.local scripts/sync-fred.ts"
+    "sync:fred": "tsx --env-file .env.local scripts/sync-fred.ts",
+    "sync:history": "tsx --env-file .env.local scripts/sync-history.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.95.3",
@@ -17,7 +18,8 @@
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "tailwind-merge": "^3.4.1"
+    "tailwind-merge": "^3.4.1",
+    "yahoo-finance2": "^3.13.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
