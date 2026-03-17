@@ -1,4 +1,6 @@
 import { fetchAllIndicators, fetchCorrelations, fetchYieldCurveHistory, fetchSpreadHistory, fetchLastSync } from "@/lib/macro/queries";
+import { fetchAllSP500Companies } from "@/lib/sp500/queries";
+import { fetchAllEuropeanCompanies } from "@/lib/europe/queries";
 import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
 
 // Revalidate every 5 minutes (same pattern as existing dashboards)
@@ -16,12 +18,14 @@ function fmtSyncTime(ts: string | null): string {
 }
 
 export default async function DashboardPage() {
-  const [indicators, correlations, curveHistory, spreadHistory, lastSync] = await Promise.all([
+  const [indicators, correlations, curveHistory, spreadHistory, lastSync, sp500Rows, europeRows] = await Promise.all([
     fetchAllIndicators(),
     fetchCorrelations(),
     fetchYieldCurveHistory(),
     fetchSpreadHistory(),
     fetchLastSync(),
+    fetchAllSP500Companies().catch(() => []),
+    fetchAllEuropeanCompanies().catch(() => []),
   ]);
 
   return (
@@ -52,7 +56,7 @@ export default async function DashboardPage() {
             </p>
           </div>
         ) : (
-          <DashboardTabs indicators={indicators} correlations={correlations} curveHistory={curveHistory} spreadHistory={spreadHistory} />
+          <DashboardTabs indicators={indicators} correlations={correlations} curveHistory={curveHistory} spreadHistory={spreadHistory} sp500Rows={sp500Rows} europeRows={europeRows} />
         )}
       </div>
     </main>

@@ -12,7 +12,7 @@
 import YahooFinance from "yahoo-finance2";
 import { getServiceRoleClient } from "@/lib/supabase-server";
 import { computeMacroSignals } from "@/lib/macro/signals";
-import { pearsonCorrelation, CORRELATION_PAIRS, interpretCorrelation } from "@/lib/macro/correlations";
+import { pearsonCorrelation, CORRELATION_PAIRS, SP500_SECTOR_SLUGS } from "@/lib/macro/correlations";
 
 const yf = new YahooFinance({ suppressNotices: ["yahooSurvey", "ripHistorical"] });
 
@@ -99,6 +99,25 @@ const HISTORY_SOURCES: Record<string, HistorySource> = {
     components: ["jp_10yr_yield", "jp_3m_rate"],
     fn: ([jp10, jp3m]) => alignAndCompute(jp10, jp3m, (a, b) => a - b),
   },
+
+  // Credit spreads — FRED confirmed OAS series (stored as %, displayed as bps)
+  us_corp_ig_spread:     { type: "fred", seriesId: "BAMLC0A0CM" },
+  us_hy_spread:          { type: "fred", seriesId: "BAMLH0A0HYM2" },
+  // TODO: verify FRED ID — may be Euro IG, not Global
+  global_corp_ig_spread: { type: "fred", seriesId: "BAMLHE00EHYIOAS" },
+  // Credit spread ETF proxies — Yahoo Finance (price, not OAS; falling price = widening spreads)
+  global_hy_spread:      { type: "yahoo", ticker: "HYXU" },
+  em_usd_spread:         { type: "yahoo", ticker: "EMB" },
+  em_lc_spread:          { type: "yahoo", ticker: "EMLC" },
+
+  // S&P 500 Sector ETFs — for intra-market correlation
+  sp500_xlk: { type: "yahoo", ticker: "XLK" },
+  sp500_xlf: { type: "yahoo", ticker: "XLF" },
+  sp500_xle: { type: "yahoo", ticker: "XLE" },
+  sp500_xlv: { type: "yahoo", ticker: "XLV" },
+  sp500_xli: { type: "yahoo", ticker: "XLI" },
+  sp500_xly: { type: "yahoo", ticker: "XLY" },
+  sp500_xlp: { type: "yahoo", ticker: "XLP" },
 
   // GBP metals — derived from USD price ÷ GBP/USD
   gold_gbp: {
@@ -442,7 +461,10 @@ async function main() {
   // Step 3: Upsert history rows into macro_history
   let historyRows = 0;
   for (const [slug, { dates, closes }] of historyMap.entries()) {
-    const rows = dates.map((date, i) => ({ indicator: slug, date, value: closes[i] }));
+    // Deduplicate by date (keep last occurrence) to avoid Postgres upsert conflict on duplicate input rows
+    const seen = new Map<string, number>();
+    dates.forEach((date, i) => seen.set(date, closes[i]));
+    const rows = Array.from(seen.entries()).map(([date, value]) => ({ indicator: slug, date, value }));
     const { error } = await supabase
       .from("macro_history")
       .upsert(rows, { onConflict: "indicator,date" });
@@ -547,6 +569,42 @@ async function main() {
     }
   }
   console.log(`[history] Correlations updated: ${correlationsUpdated}`);
+
+  // Step 5b: Compute S&P 500 intra-market correlation (average pairwise across sectors)
+  const sectorCloses = SP500_SECTOR_SLUGS.map((s) => historyMap.get(s)?.closes ?? []);
+  const validSectors = sectorCloses.filter((c) => c.length >= 30);
+
+  function avgPairwiseCor(window: number): number | null {
+    const slices = validSectors.map((c) => c.slice(-window));
+    const values: number[] = [];
+    for (let i = 0; i < slices.length; i++) {
+      for (let j = i + 1; j < slices.length; j++) {
+        const cor = pearsonCorrelation(slices[i], slices[j]);
+        if (cor !== null) values.push(cor);
+      }
+    }
+    if (values.length === 0) return null;
+    const avg = values.reduce((s, v) => s + v, 0) / values.length;
+    return Math.round(avg * 1000) / 1000;
+  }
+
+  const im_90d = avgPairwiseCor(90);
+  const im_30d = avgPairwiseCor(30);
+
+  {
+    const { error } = await supabase
+      .from("macro_correlations")
+      .upsert(
+        { pair: "sp500_intramarket", label: "S&P Sector Intra-Market Correlation", cor_90d: im_90d, cor_30d: im_30d, last_updated: now },
+        { onConflict: "pair" }
+      );
+    if (error) {
+      console.warn(`[history] Error upserting intramarket correlation: ${error.message}`);
+    } else {
+      console.log(`[history] S&P Intra-Market Correlation: COR90D = ${im_90d ?? "n/a"}, COR30D = ${im_30d ?? "n/a"}`);
+    }
+  }
+
   console.log(`[history] Done.`);
 }
 

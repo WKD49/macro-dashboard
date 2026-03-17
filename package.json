@@ -9,7 +9,8 @@
     "lint": "eslint",
     "sync:stooq": "tsx --env-file .env.local scripts/sync-stooq.ts",
     "sync:fred": "tsx --env-file .env.local scripts/sync-fred.ts",
-    "sync:history": "tsx --env-file .env.local scripts/sync-history.ts"
+    "sync:history": "tsx --env-file .env.local scripts/sync-history.ts",
+    "sync:sp500": "tsx --env-file .env.local scripts/sync-sp500.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.95.3",

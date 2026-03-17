@@ -91,3 +91,28 @@ export function interpretCorrelation(cor: number | null): string {
   if (abs >= 0.2) return `Weakly ${direction}`;
   return "No clear relationship";
 }
+
+// --- S&P 500 Intra-Market Correlation ---
+
+export const SP500_SECTOR_SLUGS = [
+  "sp500_xlk", // Technology
+  "sp500_xlf", // Financials
+  "sp500_xle", // Energy
+  "sp500_xlv", // Healthcare
+  "sp500_xli", // Industrials
+  "sp500_xly", // Consumer Discretionary
+  "sp500_xlp", // Consumer Staples
+] as const;
+
+/**
+ * interpretIntramarketCorrelation
+ * Returns a regime label for the average pairwise correlation across S&P 500 sectors.
+ * Unlike pair correlations, intramarket correlation is always positive (0 to +1).
+ */
+export function interpretIntramarketCorrelation(cor: number | null): string {
+  if (cor === null) return "Insufficient data";
+  if (cor >= 0.7) return "High correlation regime — macro factors dominating";
+  if (cor >= 0.5) return "Elevated correlation — macro still influential";
+  if (cor >= 0.3) return "Moderate correlation — mixed drivers";
+  return "Low correlation — stock-pickers' market";
+}

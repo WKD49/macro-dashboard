@@ -89,6 +89,14 @@ export const INDICATOR_LABELS: Record<string, string> = {
   gbp_eur:         "GBP/EUR",
   usd_jpy:         "USD/JPY",
   vix:             "VIX",
+  sp500_intramarket: "S&P Intra-Market Corr",
+  // Credit spreads (OAS, stored as %, displayed as bps)
+  us_corp_ig_spread:     "US Corp IG",
+  global_corp_ig_spread: "Global Corp IG",
+  us_hy_spread:          "US HY",
+  global_hy_spread:      "Global HY*",
+  em_usd_spread:         "EM USD*",
+  em_lc_spread:          "EM Local*",
 };
 
 export const CATEGORY_LABELS: Record<string, string> = {

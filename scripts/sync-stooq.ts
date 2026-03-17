@@ -59,6 +59,11 @@ const YAHOO_INDICATORS: Array<[string, string, string]> = [
   ["copper_usd",      "HG=F",      "USD/lb"],
   ["dxy",             "DX=F",      "Index"],
   ["vix",             "^VIX",      "Index"],
+  // Credit spread proxies — ETF prices used as proxy for spread direction
+  // (price falling = spreads widening = more risk)
+  ["global_hy_spread", "HYXU",     "USD"], // iShares Intl High Yield Bond ETF
+  ["em_usd_spread",    "EMB",      "USD"], // iShares JPMorgan USD EM Bond ETF
+  ["em_lc_spread",     "EMLC",     "USD"], // VanEck JPMorgan EM Local Currency Bond ETF
 ];
 
 // ---------------------------------------------------------------------------

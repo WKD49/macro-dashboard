@@ -60,6 +60,19 @@ const FRED_SERIES: Array<[string, string, string]> = [
   ["uk_3m_rate",    "IR3TIB01GBM156N",   "%"],
   ["de_3m_rate",    "IR3TIB01DEM156N",   "%"],
   ["jp_3m_rate",    "IR3TIB01JPM156N",   "%"],
+  // ---------------------------------------------------------------------------
+  // Credit spreads — ICE BofA Option-Adjusted Spread (OAS) series
+  // All values in % (e.g. 0.90 = 90 bps). Displayed as bps on the dashboard.
+  //
+  // CONFIRMED:
+  ["us_corp_ig_spread", "BAMLC0A0CM",         "%"], // ICE BofA US Corporate (IG) OAS
+  ["us_hy_spread",      "BAMLH0A0HYM2",       "%"], // ICE BofA US High Yield OAS
+  //
+  // TODO: verify series ID — may be Euro IG OAS, not Global. If confirmed wrong, replace with ETF proxy.
+  ["global_corp_ig_spread", "BAMLHE00EHYIOAS", "%"],
+  //
+  // global_hy_spread, em_usd_spread, em_lc_spread are sourced via Yahoo Finance ETF proxies
+  // (HYXU, EMB, EMLC) in sync-stooq.ts — not FRED.
 ];
 
 // ---------------------------------------------------------------------------
