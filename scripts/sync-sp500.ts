@@ -1,6 +1,6 @@
 /**
  * sync-sp500.ts
- * Fetches price history for all S&P 500 companies from Stooq,
+ * Fetches price history for all S&P 500 companies from Stooq (Yahoo Finance fallback),
  * computes returns and technical signals, and writes to earnings_companies.
  *
  * Run: npm run sync:sp500
@@ -45,14 +45,14 @@ async function main() {
   const results: CompanyResult[] = [];
   let priceErrors = 0;
 
-  for (const company of companies) {
+  const BATCH_SIZE = 5;
+
+  async function processCompany(company: { symbol: string; signal_label: string | null }): Promise<CompanyResult> {
     const { symbol } = company;
-    console.log(`[sp500] fetching ${symbol}...`);
     const bars = await fetchDailyClosesStooq(symbol);
 
     if (!bars || bars.length < 35) {
-      priceErrors++;
-      results.push({
+      return {
         symbol,
         last_price: null,
         price_asof: null,
@@ -62,22 +62,15 @@ async function main() {
         mom_12_1: null,
         signals: null,
         prev_signal_label: company.signal_label,
-      });
-      await sleep(1200);
-      continue;
+      };
     }
 
     // Store price bars
     const barsToStore = bars.slice(0, PRICE_BAR_HISTORY_DAYS);
-    const barRows = barsToStore.map((b) => ({
-      symbol,
-      date: b.date,
-      open: b.open,
-      high: b.high,
-      low: b.low,
-      close: b.close,
-      volume: b.volume,
-    }));
+    const seen = new Set<string>();
+    const barRows = barsToStore
+      .filter((b) => { if (seen.has(b.date)) return false; seen.add(b.date); return true; })
+      .map((b) => ({ symbol, date: b.date, open: b.open, high: b.high, low: b.low, close: b.close, volume: b.volume }));
     const { error: barsErr } = await supabase
       .from("price_bars")
       .upsert(barRows, { onConflict: "symbol,date" });
@@ -91,27 +84,27 @@ async function main() {
     const d30  = nthTradingDay(bars, 30);
     const d252 = nthTradingDay(bars, 252);
 
-    const last_price    = latest.close;
-    const return_5d     = d5  ? pctChange(latest.close, d5.close)  : null;
-    const return_30d    = d30 ? pctChange(latest.close, d30.close) : null;
-    const price_vs_200d = calc200dMA(bars);
-    const mom_12_1      = d252 && d30 ? pctChange(d30.close, d252.close) : null;
-
-    const signals = computeSignals(bars);
-
-    results.push({
+    return {
       symbol,
-      last_price,
+      last_price: latest.close,
       price_asof: latest.date,
-      return_5d,
-      return_30d,
-      price_vs_200d,
-      mom_12_1,
-      signals,
+      return_5d:    d5  ? pctChange(latest.close, d5.close)  : null,
+      return_30d:   d30 ? pctChange(latest.close, d30.close) : null,
+      price_vs_200d: calc200dMA(bars),
+      mom_12_1: d252 && d30 ? pctChange(d30.close, d252.close) : null,
+      signals: computeSignals(bars),
       prev_signal_label: company.signal_label,
-    });
+    };
+  }
 
-    await sleep(1200);
+  for (let i = 0; i < companies.length; i += BATCH_SIZE) {
+    const batch = companies.slice(i, i + BATCH_SIZE);
+    const batchResults = await Promise.all(batch.map(processCompany));
+    for (const r of batchResults) {
+      if (r.last_price === null) priceErrors++;
+      results.push(r);
+    }
+    await sleep(300);
   }
 
   // Cross-sectional momentum ranking

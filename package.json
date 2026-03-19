@@ -10,7 +10,13 @@
     "sync:stooq": "tsx --env-file .env.local scripts/sync-stooq.ts",
     "sync:fred": "tsx --env-file .env.local scripts/sync-fred.ts",
     "sync:history": "tsx --env-file .env.local scripts/sync-history.ts",
-    "sync:sp500": "tsx --env-file .env.local scripts/sync-sp500.ts"
+    "sync:sp500": "tsx --env-file .env.local scripts/sync-sp500.ts",
+    "sync:sp500-earnings": "tsx --env-file .env.local scripts/sync-sp500-earnings.ts",
+    "sync:sp500-valuations": "tsx --env-file .env.local scripts/sync-sp500-valuations.ts",
+    "sync:eu-market": "tsx --env-file .env.local scripts/sync-eu-market.ts",
+    "sync:eu-earnings": "tsx --env-file .env.local scripts/sync-eu-earnings.ts",
+    "sync:eu-valuations": "tsx --env-file .env.local scripts/sync-eu-valuations.ts",
+    "sync:eu-weights": "tsx --env-file .env.local scripts/sync-eu-weights.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.95.3",

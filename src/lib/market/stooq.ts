@@ -51,27 +51,67 @@ function stooqSymbolCandidates(symbol: string): string[] {
   return Array.from(new Set(candidates));
 }
 
-export async function fetchDailyClosesStooq(symbol: string): Promise<DailyBar[] | null> {
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const YahooFinance = require("yahoo-finance2").default;
+const _yf = new YahooFinance({ suppressNotices: ["yahooSurvey", "ripHistorical"] });
+
+async function fetchFromStooq(symbol: string): Promise<DailyBar[] | null> {
   const candidates = stooqSymbolCandidates(symbol);
 
   for (const cand of candidates) {
     const url = `https://stooq.com/q/d/l/?s=${encodeURIComponent(cand)}&i=d`;
-    const res = await fetch(url, {
-      method: "GET",
-      headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" },
-    });
-    if (!res.ok) continue;
+    try {
+      const res = await fetch(url, {
+        method: "GET",
+        headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" },
+      });
+      if (!res.ok) continue;
 
-    const text = await res.text();
+      const text = await res.text();
+      if (/no data/i.test(text)) continue;
 
-    // Stooq returns "No data" sometimes
-    if (/no data/i.test(text)) continue;
-
-    const bars = parseCsv(text);
-    if (bars.length >= 35) return bars;
+      const bars = parseCsv(text);
+      if (bars.length >= 35) return bars;
+    } catch {
+      continue;
+    }
   }
 
   return null;
+}
+
+async function fetchFromYahoo(symbol: string): Promise<DailyBar[] | null> {
+  try {
+    const period1 = new Date(Date.now() - 600 * 86400_000);
+    const result = await _yf.chart(symbol, { period1, interval: "1d" }, { validateResult: false });
+    const quotes = result?.quotes ?? [];
+    if (quotes.length < 35) return null;
+
+    const bars: DailyBar[] = quotes
+      .filter((r: any) => r.close != null && Number.isFinite(r.close))
+      .map((r: any) => ({
+        date: (r.date as Date).toISOString().slice(0, 10),
+        open: r.open ?? 0,
+        high: r.high ?? 0,
+        low: r.low ?? 0,
+        close: r.close as number,
+        volume: r.volume ?? 0,
+      }));
+
+    bars.sort((a, b) => (a.date < b.date ? 1 : -1));
+    return bars.length >= 35 ? bars : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchDailyClosesStooq(symbol: string): Promise<DailyBar[] | null> {
+  const stooq = await fetchFromStooq(symbol);
+  if (stooq) return stooq;
+
+  // Stooq failed (blocked or no data) — fall back to Yahoo Finance
+  // Yahoo Finance uses plain uppercase tickers for US stocks (e.g. "AAPL", not "aapl.us")
+  return fetchFromYahoo(symbol.toUpperCase());
 }
 
 export function pctChange(newVal: number, oldVal: number): number {

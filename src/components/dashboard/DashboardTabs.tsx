@@ -1215,6 +1215,8 @@ export function DashboardTabs({ indicators, correlations, curveHistory, spreadHi
             </nav>
           </div>
 
+          <p className="text-xs text-gray-400 -mt-4">All prices are end-of-day. Data updates when sync is run manually.</p>
+
           {active === "overview" && <OverviewTab indicators={allIndicators} />}
           {active === "signals" && <SignalsTab bySlug={bySlug} />}
           {active === "yield_curves" && <YieldCurvesTab bySlug={bySlug} curveHistory={curveHistory} spreadHistory={spreadHistory} />}

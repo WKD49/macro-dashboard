@@ -25,6 +25,12 @@ export const GICS_SECTORS: GicsSector[] = [
   "Utilities",
 ];
 
+export function normaliseSector(input: string): GicsSector {
+  const trimmed = input.trim();
+  const match = GICS_SECTORS.find((s) => s === trimmed);
+  return match ?? "Information Technology";
+}
+
 export interface SP500CompanyRow {
   symbol: string;
   name: string;

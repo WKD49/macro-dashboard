@@ -526,6 +526,8 @@ export function EuropeSection({ rows }: { rows: EuropeanCompanyRow[] }) {
         ))}
       </div>
 
+      <p className="mt-3 text-xs text-gray-400">All prices are end-of-day. Data updates when sync is run manually.</p>
+
       <div className="mt-4">
 
         {/* ── Summary ── */}
