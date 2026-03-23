@@ -1148,6 +1148,9 @@ export function DashboardTabs({ indicators, correlations, curveHistory, spreadHi
   const [section, setSection] = useState<Section>("macro");
   const [active, setActive] = useState<TabKey>("overview");
 
+  const sp500Index = indicators.find((i) => i.indicator === "sp500_index") ?? null;
+  const stoxx600Index = indicators.find((i) => i.indicator === "stoxx600_index") ?? null;
+
   const bySlug = new Map<string, MacroIndicatorRow>();
   for (const row of indicators) bySlug.set(row.indicator, row);
 
@@ -1233,7 +1236,7 @@ export function DashboardTabs({ indicators, correlations, curveHistory, spreadHi
             No S&amp;P 500 data available. Check the database connection.
           </div>
         ) : (
-          <SP500Section rows={sp500Rows} />
+          <SP500Section rows={sp500Rows} indexValue={sp500Index?.value ?? null} indexChangePct={sp500Index?.change_pct ?? null} />
         )
       )}
 
@@ -1244,7 +1247,7 @@ export function DashboardTabs({ indicators, correlations, curveHistory, spreadHi
             No European data available. Check the database connection.
           </div>
         ) : (
-          <EuropeSection rows={europeRows} />
+          <EuropeSection rows={europeRows} indexValue={stoxx600Index?.value ?? null} indexChangePct={stoxx600Index?.change_pct ?? null} />
         )
       )}
     </div>

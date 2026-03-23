@@ -34,7 +34,7 @@ export default async function DashboardPage() {
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2">
           <h1 className="text-lg font-semibold text-gray-900">
-            Macro Dashboard
+            Markets Dashboard
           </h1>
           <p className="text-xs text-gray-400">
             Last synced:{" "}

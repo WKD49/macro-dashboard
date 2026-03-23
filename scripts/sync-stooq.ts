@@ -37,18 +37,17 @@ type IndicatorRow = {
 // Each entry: [indicator slug, stooq ticker, currency label]
 // ---------------------------------------------------------------------------
 
-const STOOQ_INDICATORS: Array<[string, string, string]> = [
+// [slug, stooq ticker, currency, yahoo fallback ticker]
+const STOOQ_INDICATORS: Array<[string, string, string, string?]> = [
   // Metals (USD) — GBP versions calculated separately
-  ["gold_usd",   "xauusd", "USD/oz"],
-  ["silver_usd", "xagusd", "USD/oz"],
+  ["gold_usd",   "xauusd", "USD/oz", "GC=F"],
+  ["silver_usd", "xagusd", "USD/oz", "SI=F"],
 
   // Currencies (also used to derive GBP metal prices)
-  ["gbp_usd", "gbpusd",  "Rate"],
-  ["eur_usd", "eurusd",  "Rate"],
-  ["gbp_eur", "gbpeur",  "Rate"],
-  ["usd_jpy", "usdjpy",  "Rate"],
-
-  // Volatility — fetched from Yahoo (vix.us not on Stooq)
+  ["gbp_usd", "gbpusd",  "Rate", "GBPUSD=X"],
+  ["eur_usd", "eurusd",  "Rate", "EURUSD=X"],
+  ["gbp_eur", "gbpeur",  "Rate", "GBPEUR=X"],
+  ["usd_jpy", "usdjpy",  "Rate", "USDJPY=X"],
 ];
 
 // Yahoo Finance tickers for instruments not available on Stooq
@@ -57,13 +56,16 @@ const YAHOO_INDICATORS: Array<[string, string, string]> = [
   ["wti_crude_usd",   "CL=F",      "USD/bbl"],
   ["natural_gas_usd", "NG=F",      "USD/MMBtu"],
   ["copper_usd",      "HG=F",      "USD/lb"],
-  ["dxy",             "DX=F",      "Index"],
+  ["dxy",             "DX-Y.NYB",  "Index"],
   ["vix",             "^VIX",      "Index"],
   // Credit spread proxies — ETF prices used as proxy for spread direction
   // (price falling = spreads widening = more risk)
   ["global_hy_spread", "HYXU",     "USD"], // iShares Intl High Yield Bond ETF
   ["em_usd_spread",    "EMB",      "USD"], // iShares JPMorgan USD EM Bond ETF
   ["em_lc_spread",     "EMLC",     "USD"], // VanEck JPMorgan EM Local Currency Bond ETF
+  // Index levels
+  ["sp500_index",      "^GSPC",    "Index"],
+  ["stoxx600_index",   "^STOXX",   "Index"],
 ];
 
 // ---------------------------------------------------------------------------
@@ -176,11 +178,19 @@ async function main() {
   // Fetch raw bars for each indicator
   const rawData = new Map<string, DailyBar[]>();
 
-  for (const [slug, ticker] of STOOQ_INDICATORS) {
+  for (const [slug, ticker, , yahooFallback] of STOOQ_INDICATORS) {
     console.log(`[stooq] Fetching ${slug} (${ticker})...`);
     const bars = await fetchStooq(ticker);
     if (bars) {
       rawData.set(slug, bars);
+    } else if (yahooFallback) {
+      console.log(`[stooq] Falling back to Yahoo for ${slug} (${yahooFallback})...`);
+      const yBars = await fetchYahoo(yahooFallback);
+      if (yBars) {
+        rawData.set(slug, yBars);
+      } else {
+        errors.push({ indicator: slug, error: `no data from stooq (${ticker}) or yahoo (${yahooFallback})` });
+      }
     } else {
       errors.push({ indicator: slug, error: `no data from stooq ticker ${ticker}` });
     }

@@ -431,7 +431,7 @@ function EarningsFilter({ rows }: { rows: EuropeanCompanyRow[] }) {
 const TABS = ["Summary", "Signals", "Movers", "Earnings", "Valuations"] as const;
 type Tab = typeof TABS[number];
 
-export function EuropeSection({ rows }: { rows: EuropeanCompanyRow[] }) {
+export function EuropeSection({ rows, indexValue, indexChangePct }: { rows: EuropeanCompanyRow[]; indexValue: number | null; indexChangePct: number | null }) {
   const [activeTab, setActiveTab] = useState<Tab>("Summary");
 
   const now = new Date();
@@ -526,7 +526,19 @@ export function EuropeSection({ rows }: { rows: EuropeanCompanyRow[] }) {
         ))}
       </div>
 
-      <p className="mt-3 text-xs text-gray-400">All prices are end-of-day. Data updates when sync is run manually.</p>
+      {indexValue !== null && (
+        <div className="mt-3 flex items-baseline gap-2">
+          <span className="text-sm font-medium text-gray-700">Stoxx 600</span>
+          <span className="text-sm font-semibold text-gray-900">{indexValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          {indexChangePct !== null && (
+            <span className={`text-xs font-medium ${indexChangePct >= 0 ? "text-green-600" : "text-red-600"}`}>
+              {indexChangePct >= 0 ? "+" : ""}{indexChangePct.toFixed(2)}%
+            </span>
+          )}
+          <span className="text-xs text-gray-400">(last price)</span>
+        </div>
+      )}
+      <p className="mt-2 text-xs text-gray-400">All prices below are end-of-day. Data updates when sync is run manually.</p>
 
       <div className="mt-4">
 
