@@ -30,7 +30,7 @@ async function main() {
     .from("eu_earnings_companies")
     .select("symbol, sector, report_date, signal_overall, signal_label")
     .order("index_weight", { ascending: false, nullsFirst: false })
-    .limit(300);
+    .limit(700);
 
   if (error) throw new Error(error.message);
 

@@ -51,7 +51,7 @@ export type MacroSyncLogRow = {
 export const CATEGORY_SLUGS: Record<string, string[]> = {
   energy: ["brent_crude_usd", "wti_crude_usd", "natural_gas_usd"],
   metals: ["gold_usd", "gold_gbp", "silver_usd", "silver_gbp", "copper_usd", "copper_gbp"],
-  fixed_income: ["us_10yr_yield", "uk_10yr_yield", "de_10yr_yield", "jp_10yr_yield", "us_2yr_yield", "us_3m_rate", "uk_3m_rate", "de_3m_rate", "jp_3m_rate", "us_yield_spread", "uk_yield_curve", "de_yield_curve", "jp_yield_curve", "us_uk_spread", "us_de_spread", "us_jp_spread"],
+  fixed_income: ["us_10yr_yield", "uk_10yr_yield", "de_10yr_yield", "jp_10yr_yield", "us_2yr_yield", "us_3m_rate", "uk_3m_rate", "de_3m_rate", "jp_3m_rate", "us_2s10s_spread", "us_yield_spread", "uk_yield_curve", "de_yield_curve", "jp_yield_curve", "us_uk_spread", "us_de_spread", "us_jp_spread"],
   currencies: ["dxy", "gbp_usd", "eur_usd", "gbp_eur", "usd_jpy"],
   volatility: ["vix"],
 };
@@ -76,6 +76,7 @@ export const INDICATOR_LABELS: Record<string, string> = {
   uk_3m_rate:      "UK 3M Rate",
   de_3m_rate:      "DE 3M Rate",
   jp_3m_rate:      "JP 3M Rate",
+  us_2s10s_spread: "US Curve (10yr−2yr)",
   us_yield_spread: "US Curve (10yr−3M)",
   uk_yield_curve:  "UK Curve (10yr−3M)",
   de_yield_curve:  "DE Curve (10yr−3M)",
@@ -94,9 +95,7 @@ export const INDICATOR_LABELS: Record<string, string> = {
   us_corp_ig_spread:     "US Corp IG",
   global_corp_ig_spread: "Global Corp IG",
   us_hy_spread:          "US HY",
-  global_hy_spread:      "Global HY*",
-  em_usd_spread:         "EM USD*",
-  em_lc_spread:          "EM Local*",
+  euro_hy_spread:        "Euro HY",
 };
 
 export const CATEGORY_LABELS: Record<string, string> = {

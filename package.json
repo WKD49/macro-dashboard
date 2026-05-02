@@ -16,7 +16,8 @@
     "sync:eu-market": "tsx --env-file .env.local scripts/sync-eu-market.ts",
     "sync:eu-earnings": "tsx --env-file .env.local scripts/sync-eu-earnings.ts",
     "sync:eu-valuations": "tsx --env-file .env.local scripts/sync-eu-valuations.ts",
-    "sync:eu-weights": "tsx --env-file .env.local scripts/sync-eu-weights.ts"
+    "sync:eu-weights": "tsx --env-file .env.local scripts/sync-eu-weights.ts",
+    "sync:calendar": "tsx --env-file .env.local scripts/sync-calendar.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.95.3",

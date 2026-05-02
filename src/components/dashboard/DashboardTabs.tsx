@@ -37,7 +37,7 @@ function fmtPct(v: number | null): string {
 const BPS_INDICATORS = new Set([
   "us_10yr_yield", "us_2yr_yield", "uk_10yr_yield", "de_10yr_yield", "jp_10yr_yield",
   "us_3m_rate", "uk_3m_rate", "de_3m_rate", "jp_3m_rate",
-  "us_yield_spread", "uk_yield_curve", "de_yield_curve", "jp_yield_curve",
+  "us_2s10s_spread", "us_yield_spread", "uk_yield_curve", "de_yield_curve", "jp_yield_curve",
   "us_uk_spread", "us_de_spread", "us_jp_spread",
 ]);
 
@@ -64,12 +64,114 @@ function pctColour(v: number | null): string {
 
 // Yield curves, cross-country spreads, and credit spreads: stored as %, displayed as bps (× 100)
 const BPS_VALUE_INDICATORS = new Set([
-  "us_yield_spread", "uk_yield_curve", "de_yield_curve", "jp_yield_curve",
+  "us_2s10s_spread", "us_yield_spread", "uk_yield_curve", "de_yield_curve", "jp_yield_curve",
   "us_uk_spread", "us_de_spread", "us_jp_spread",
   // ICE BofA OAS series: stored as % (e.g. 0.90 = 90bps), displayed as bps (× 100)
   "us_corp_ig_spread", "global_corp_ig_spread", "us_hy_spread",
-  // global_hy_spread, em_usd_spread, em_lc_spread are ETF prices — shown as USD, not bps
+  // global_hy_spread, em_usd_spread, em_lc_spread removed (ETF proxies, not true OAS)
 ]);
+
+const YIELD_CURVE_SLUGS = new Set([
+  "us_2s10s_spread", "us_yield_spread", "uk_yield_curve", "de_yield_curve", "jp_yield_curve",
+]);
+
+const SPREAD_SLUGS = new Set([
+  "us_uk_spread", "us_de_spread", "us_jp_spread",
+  "us_corp_ig_spread", "global_corp_ig_spread", "us_hy_spread", "euro_hy_spread",
+]);
+
+const CURVE_LABEL_MAP: Record<string, string> = {
+  "Strong Bullish Trend":          "Strongly Steepening",
+  "Bullish Momentum Increasing":   "Steepening — Building",
+  "Bullish Trend Losing Momentum": "Steepening — Slowing",
+  "Uptrend Under Pressure":        "Steepening, Stalling",
+  "Counter-Trend Rally":           "Brief Steepening",
+  "Bearish Momentum Weakening":    "Flattening — Slowing",
+  "Bearish Trend Losing Momentum": "Flattening — Slowing",
+  "Strong Bearish Trend":          "Strongly Flattening",
+  "Sideways / Choppy":             "Range-Bound",
+  "Mixed Signals":                 "Mixed",
+};
+
+const SPREAD_LABEL_MAP: Record<string, string> = {
+  "Strong Bullish Trend":          "Strongly Widening",
+  "Bullish Momentum Increasing":   "Widening — Building",
+  "Bullish Trend Losing Momentum": "Widening — Slowing",
+  "Uptrend Under Pressure":        "Widening, Stalling",
+  "Counter-Trend Rally":           "Brief Widening",
+  "Bearish Momentum Weakening":    "Narrowing — Slowing",
+  "Bearish Trend Losing Momentum": "Narrowing — Slowing",
+  "Strong Bearish Trend":          "Strongly Narrowing",
+  "Sideways / Choppy":             "Range-Bound",
+  "Mixed Signals":                 "Mixed",
+};
+
+function translateSignalLabel(slug: string | null | undefined, label: string | null): string | null {
+  if (!label || !slug) return label;
+  if (YIELD_CURVE_SLUGS.has(slug)) return CURVE_LABEL_MAP[label] ?? label;
+  if (SPREAD_SLUGS.has(slug)) return SPREAD_LABEL_MAP[label] ?? label;
+  return label;
+}
+
+// Convert a row's % change back to absolute bps move.
+// preferPeriod "21d" uses chg_21d first (for 1M signal); default prefers chg_5d.
+function toBps(row: MacroIndicatorRow | undefined, preferPeriod?: "21d"): number | null {
+  if (!row || row.value == null) return null;
+  const chg = preferPeriod === "21d"
+    ? (row.chg_21d ?? row.chg_5d)
+    : (row.chg_5d ?? row.chg_21d);
+  if (chg == null) return null;
+  const d = 1 + chg / 100;
+  if (!Number.isFinite(d) || Math.abs(d) < 0.01) return null;
+  return (row.value * (chg / 100) / d) * 100;
+}
+
+function getBpsPeriod(row: MacroIndicatorRow | undefined, preferPeriod?: "21d"): string {
+  if (!row) return "recent";
+  if (preferPeriod === "21d") return row.chg_21d != null ? "1M" : row.chg_5d != null ? "5d" : "recent";
+  return row.chg_5d != null ? "5d" : row.chg_21d != null ? "1M" : "recent";
+}
+
+// Min/max spread (in bps) over the last N days from history rows.
+function getSpreadRange(historyRows: CurveHistoryRow[], slug: string, daysAgo: number): { min: number; max: number } | null {
+  const cutoff = new Date(Date.now() - daysAgo * 86400_000).toISOString().slice(0, 10);
+  const vals = historyRows.filter(r => r.indicator === slug && r.date >= cutoff).map(r => r.value * 100);
+  if (vals.length < 2) return null;
+  return { min: Math.round(Math.min(...vals)), max: Math.round(Math.max(...vals)) };
+}
+
+// Classify a yield curve move as bear/bull steepening/flattening.
+// Uses the spread row's own chg for direction + magnitude, legs' ema_trend for bear/bull.
+// Bear/bull qualifier only applied when the spread move exceeds 5bps.
+function classifyCurveMove(
+  spreadRow: MacroIndicatorRow | undefined,
+  longRow: MacroIndicatorRow | undefined,
+  shortRow: MacroIndicatorRow | undefined,
+  preferPeriod?: "21d"
+): { label: string; colour: string; period: string } | null {
+  if (!spreadRow) return null;
+  const spreadBps = toBps(spreadRow, preferPeriod);
+  if (spreadBps === null) return null;
+
+  const period = getBpsPeriod(spreadRow, preferPeriod);
+  const longTrend = longRow?.ema_trend ?? null;
+  const shortTrend = shortRow?.ema_trend ?? null;
+  const THRESHOLD = 5;
+
+  if (spreadBps > THRESHOLD) {
+    if (longTrend === "up")   return { label: "Bear Steepening", colour: "bg-amber-50 text-amber-700 border border-amber-200", period };
+    if (shortTrend === "down") return { label: "Bull Steepening", colour: "bg-green-50 text-green-700 border border-green-200", period };
+    return { label: "Steepening", colour: "bg-green-50 text-green-700 border border-green-200", period };
+  }
+  if (spreadBps < -THRESHOLD) {
+    if (shortTrend === "up")  return { label: "Bear Flattening", colour: "bg-red-50 text-red-700 border border-red-200", period };
+    if (longTrend === "down") return { label: "Bull Flattening", colour: "bg-blue-50 text-blue-700 border border-blue-200", period };
+    return { label: "Flattening", colour: "bg-amber-50 text-amber-700 border border-amber-200", period };
+  }
+  if (spreadBps > 0) return { label: "Steepening", colour: "bg-green-50 text-green-700 border border-green-200", period };
+  if (spreadBps < 0) return { label: "Flattening", colour: "bg-amber-50 text-amber-700 border border-amber-200", period };
+  return { label: "Range-Bound", colour: "bg-gray-100 text-gray-600 border border-gray-200", period };
+}
 
 function fmtDisplayValue(value: number | null, indicator: string): string {
   if (value === null) return "—";
@@ -87,14 +189,26 @@ function getDisplayUnit(indicator: string, currency: string | null): string | nu
 // Shared badge components
 // ---------------------------------------------------------------------------
 
-function SignalBadge({ label }: { label: string | null }) {
-  if (!label) return <span className="text-gray-400 text-xs">—</span>;
-  const isGreen =
-    (label.includes("Bullish") && !label.includes("Under Pressure")) ||
-    label === "Bearish Momentum Weakening" ||
-    label === "Bearish Trend Losing Momentum" ||
-    label === "Counter-Trend Rally";
-  const isRed = (label.includes("Bearish") && !isGreen) || label === "Uptrend Under Pressure";
+function SignalBadge({ label, slug }: { label: string | null; slug?: string | null }) {
+  const displayLabel = translateSignalLabel(slug, label);
+  if (!displayLabel) return <span className="text-gray-400 text-xs">—</span>;
+
+  let isGreen: boolean;
+  let isRed: boolean;
+  if (slug && YIELD_CURVE_SLUGS.has(slug)) {
+    isGreen = displayLabel.includes("Steepening") && !displayLabel.includes("Bear") && !displayLabel.includes("Stalling");
+    isRed = displayLabel.includes("Flattening") && !displayLabel.includes("Slowing");
+  } else if (slug && SPREAD_SLUGS.has(slug)) {
+    isGreen = displayLabel.includes("Narrowing") && !displayLabel.includes("Slowing");
+    isRed = displayLabel.includes("Widening") && !displayLabel.includes("Slowing") && !displayLabel.includes("Stalling");
+  } else {
+    isGreen =
+      (displayLabel.includes("Bullish") && !displayLabel.includes("Under Pressure")) ||
+      displayLabel === "Bearish Momentum Weakening" ||
+      displayLabel === "Bearish Trend Losing Momentum" ||
+      displayLabel === "Counter-Trend Rally";
+    isRed = (displayLabel.includes("Bearish") && !isGreen) || displayLabel === "Uptrend Under Pressure";
+  }
   const colour = isGreen
     ? "bg-green-50 text-green-700 border border-green-200"
     : isRed
@@ -102,7 +216,7 @@ function SignalBadge({ label }: { label: string | null }) {
     : "bg-gray-100 text-gray-600 border border-gray-200";
   return (
     <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${colour}`}>
-      {label}
+      {displayLabel}
     </span>
   );
 }
@@ -363,7 +477,7 @@ function HighConvictionCard({
           <span className="text-xs text-gray-400">{getDisplayUnit(row.indicator, row.currency)}</span>
         )}
       </div>
-      <SignalBadge label={row.signal_label} />
+      <SignalBadge label={row.signal_label} slug={row.indicator} />
       {(() => {
         // For monthly FRED series 1W/1M are null — fall back to next available period
         const p1 = row.chg_5d  != null ? { label: "1W", v: row.chg_5d  } :
@@ -409,9 +523,15 @@ function OverviewTab({ indicators }: { indicators: MacroIndicatorRow[] }) {
     { bullish: 0, bearish: 0, sideways: 0, highConv: 0 }
   );
 
+  const EXCLUDED_FROM_SIGNALS = new Set([
+    "global_hy_spread", "em_usd_spread", "em_lc_spread",
+    "sp500_xlk", "sp500_xlf", "sp500_xle", "sp500_xlv", "sp500_xli", "sp500_xly",
+  ]);
+
   const highConv = indicators
     .filter(
       (r) =>
+        !EXCLUDED_FROM_SIGNALS.has(r.indicator) &&
         (r.signal_confidence === "high" || r.signal_confidence === "medium") &&
         r.signal_label &&
         r.signal_label !== "Sideways / Choppy" &&
@@ -430,6 +550,11 @@ function OverviewTab({ indicators }: { indicators: MacroIndicatorRow[] }) {
 
   return (
     <div className="flex flex-col gap-8">
+      <p className="text-xs text-gray-400">
+        Signal labels reflect a <span className="font-medium">medium-term trend (weeks–months)</span> based on MACD, moving averages, and momentum — not the most recent daily move.
+        For shorter-term yield curve moves see the <span className="font-medium">Yield Curves tab</span>.
+      </p>
+
       {/* Market Pulse */}
       <div>
         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Market Pulse</p>
@@ -501,7 +626,7 @@ function OverviewTab({ indicators }: { indicators: MacroIndicatorRow[] }) {
         </p>
         <SortableIndicatorTable bySlug={bySlug} />
         <p className="mt-3 text-xs text-gray-400">
-          * Global HY, EM USD, and EM Local are ETF prices (USD), not OAS spreads in bps — use for direction only.
+          * Credit spread sources: US Corp IG and US HY are ICE BofA OAS series via FRED. Global Corp IG is approximate — verify ticker.
         </p>
       </div>
     </div>
@@ -517,10 +642,9 @@ const SIGNALS_ORDER = [
   "gold_usd", "gold_gbp", "silver_usd", "silver_gbp", "copper_usd", "copper_gbp",
   "dxy", "gbp_usd", "eur_usd", "gbp_eur", "usd_jpy",
   "us_10yr_yield", "us_2yr_yield", "uk_10yr_yield", "de_10yr_yield", "jp_10yr_yield",
-  "us_yield_spread", "uk_yield_curve", "de_yield_curve", "jp_yield_curve",
+  "us_2s10s_spread", "us_yield_spread", "uk_yield_curve", "de_yield_curve", "jp_yield_curve",
   "us_uk_spread", "us_de_spread", "us_jp_spread",
-  "us_corp_ig_spread", "global_corp_ig_spread", "us_hy_spread",
-  "global_hy_spread", "em_usd_spread", "em_lc_spread",
+  "us_corp_ig_spread", "global_corp_ig_spread", "us_hy_spread", "euro_hy_spread",
 ];
 
 function ReturnCell({ value, indicator, currentValue }: { value: number | null; indicator?: string; currentValue?: number | null }) {
@@ -540,12 +664,10 @@ const CATEGORY_GROUPS: { label: string; slugs: string[] }[] = [
   { label: "Metals",              slugs: ["gold_usd", "gold_gbp", "silver_usd", "silver_gbp", "copper_usd", "copper_gbp"] },
   { label: "Currencies",         slugs: ["dxy", "gbp_usd", "eur_usd", "gbp_eur", "usd_jpy"] },
   { label: "Government Bonds",   slugs: ["us_10yr_yield", "us_2yr_yield", "uk_10yr_yield", "de_10yr_yield", "jp_10yr_yield"] },
-  { label: "Yield Curves (bps)", slugs: ["us_yield_spread", "uk_yield_curve", "de_yield_curve", "jp_yield_curve"] },
+  { label: "Yield Curves (bps)", slugs: ["us_2s10s_spread", "us_yield_spread", "uk_yield_curve", "de_yield_curve", "jp_yield_curve"] },
   { label: "Cross-Country Spreads (bps)", slugs: ["us_uk_spread", "us_de_spread", "us_jp_spread"] },
   { label: "Credit Spreads (bps)", slugs: [
-    "us_corp_ig_spread", "global_corp_ig_spread",
-    "us_hy_spread", "global_hy_spread",
-    "em_usd_spread", "em_lc_spread",
+    "us_corp_ig_spread", "global_corp_ig_spread", "us_hy_spread", "euro_hy_spread",
   ]},
 ];
 
@@ -698,7 +820,7 @@ function SortableIndicatorTable({ bySlug }: { bySlug: Map<string, MacroIndicator
                       <span className="text-gray-400 text-xs ml-1">{getDisplayUnit(row.indicator, row.currency)}</span>
                     )}
                   </td>
-                  <td className="py-2.5 px-3"><SignalBadge label={row.signal_label} /></td>
+                  <td className="py-2.5 px-3"><SignalBadge label={row.signal_label} slug={row.indicator} /></td>
                   <td className="py-2.5 px-2 text-center"><ConfidenceDot confidence={row.signal_confidence} /></td>
                   <td className="py-2.5 px-2 text-center"><MACDBadge state={row.macd_state} /></td>
                   <td className="py-2.5 px-2 text-center"><TrendBadge value={row.ema_trend} /></td>
@@ -744,6 +866,11 @@ function YieldLevelCard({ row, title }: { row: MacroIndicatorRow | undefined; ti
   const chg = row.change_pct;
   const isPos = chg !== null && chg > 0;
   const isNeg = chg !== null && chg < 0;
+  const periods = [
+    { label: "1D", val: row.change_pct },
+    { label: "1M", val: row.chg_21d },
+    { label: "3M", val: row.chg_63d },
+  ];
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col gap-2">
       <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</p>
@@ -758,6 +885,13 @@ function YieldLevelCard({ row, title }: { row: MacroIndicatorRow | undefined; ti
         {isNeg && <TrendingDown className="w-4 h-4 shrink-0" />}
         {!isPos && !isNeg && <Minus className="w-4 h-4 shrink-0" />}
         <span>{fmtChg(chg, row.indicator, row.value)}</span>
+      </div>
+      <div className="flex gap-3 text-xs text-gray-500 border-t border-gray-100 pt-2">
+        {periods.map(({ label: p, val }) => (
+          <span key={p} className={val != null && val > 0 ? "text-green-600 font-medium" : val != null && val < 0 ? "text-red-600 font-medium" : "text-gray-400"}>
+            {fmtChg(val, row.indicator, row.value)} {p}
+          </span>
+        ))}
       </div>
     </div>
   );
@@ -840,6 +974,48 @@ function CurveCard({ country, spreadRow, longRow, shortRow, shortLabel, historyR
           ))}
         </div>
       </div>
+
+      {/* Signals + range */}
+      {(() => {
+        const moveShort = classifyCurveMove(spreadRow, longRow, shortRow);
+        const moveMonth = classifyCurveMove(spreadRow, longRow, shortRow, "21d");
+        const range3m = spreadRow ? getSpreadRange(historyRows, spreadRow.indicator, 91) : null;
+        const lBps = toBps(longRow);
+        const sBps = toBps(shortRow);
+        const fmt = (v: number | null) => v !== null ? `${v >= 0 ? "+" : ""}${v.toFixed(0)}bps` : "—";
+        return (
+          <div className="border-t border-gray-100 pt-2 flex flex-col gap-2">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-xs text-gray-400 shrink-0">Trend:</span>
+              {spreadRow?.signal_label
+                ? <SignalBadge label={spreadRow.signal_label} slug={spreadRow.indicator} />
+                : <span className="text-xs text-gray-400">—</span>}
+            </div>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-xs text-gray-400 shrink-0">Signal:</span>
+              {moveMonth && (
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${moveMonth.colour}`}>
+                  {moveMonth.label} <span className="opacity-60">(1M)</span>
+                </span>
+              )}
+              {moveShort && (
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${moveShort.colour}`}
+                  title={`10yr: ${fmt(lBps)} · ${shortLabel}: ${fmt(sBps)} (${moveShort.period})`}>
+                  {moveShort.label} <span className="opacity-60">({moveShort.period})</span>
+                </span>
+              )}
+            </div>
+            {range3m && (
+              <div className="text-xs text-gray-400">
+                3M range:{" "}
+                <span className={`font-medium ${range3m.min < 0 ? "text-red-500" : "text-gray-600"}`}>{range3m.min >= 0 ? "+" : ""}{range3m.min}bps</span>
+                {" to "}
+                <span className={`font-medium ${range3m.max > 0 ? "text-green-600" : "text-gray-600"}`}>{range3m.max >= 0 ? "+" : ""}{range3m.max}bps</span>
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }
@@ -873,7 +1049,7 @@ function CrossSpreadCard({ row, historyRows }: { row: MacroIndicatorRow | undefi
         <span className={move1m.startsWith("+") ? "text-green-600 font-medium" : move1m.startsWith("-") ? "text-red-600 font-medium" : "text-gray-400"}>{move1m} 1M</span>
         <span className={move3m.startsWith("+") ? "text-green-600 font-medium" : move3m.startsWith("-") ? "text-red-600 font-medium" : "text-gray-400"}>{move3m} 3M</span>
       </div>
-      {row.signal_label && <SignalBadge label={row.signal_label} />}
+      {row.signal_label && <SignalBadge label={row.signal_label} slug={row.indicator} />}
     </div>
   );
 }
@@ -897,6 +1073,13 @@ function YieldCurvesTab({ bySlug, curveHistory, spreadHistory }: { bySlug: Map<s
 
       <section>
         <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+          US Curve — 2s10s (10yr − 2yr)
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+          <CurveCard country="United States (2s10s)" spreadRow={bySlug.get("us_2s10s_spread")} longRow={bySlug.get("us_10yr_yield")} shortRow={bySlug.get("us_2yr_yield")} shortLabel="2yr" historyRows={curveHistory} />
+        </div>
+
+        <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
           Global Curve Shapes (10yr − 3M)
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -910,6 +1093,15 @@ function YieldCurvesTab({ bySlug, curveHistory, spreadHistory }: { bySlug: Map<s
           · History shows the spread at 1M / 3M / 6M / 1Y ago
           · All four countries use 10yr govt bond vs 3M rate — same methodology as the NY Fed recession model
           · US uses daily T-bill (DGS3MO); UK/DE/JP use monthly interbank rates (slight lag)
+        </p>
+        <p className="text-xs text-gray-400 mt-1">
+          Curve trend badge measures the <span className="font-medium">recent spread move</span> (5-day if available, else 1-month) —
+          direction shown when move exceeds 5bps.{" "}
+          <span className="font-medium">Bear Steepening</span>: long rates in uptrend ·{" "}
+          <span className="font-medium">Bull Steepening</span>: short rates in downtrend ·{" "}
+          <span className="font-medium">Bear Flattening</span>: short rates in uptrend ·{" "}
+          <span className="font-medium">Bull Flattening</span>: long rates in downtrend.
+          The Overview tab signal label reflects a longer-term trend (weeks–months) and may differ from the short-term badge here.
         </p>
       </section>
 
@@ -1134,6 +1326,7 @@ type Props = {
   spreadHistory: CurveHistoryRow[];
   sp500Rows: SP500CompanyRow[];
   europeRows: EuropeanCompanyRow[];
+  lastSyncTime: string;
 };
 
 type Section = "macro" | "sp500" | "europe";
@@ -1144,7 +1337,7 @@ const SECTIONS: { key: Section; label: string }[] = [
   { key: "europe", label: "European" },
 ];
 
-export function DashboardTabs({ indicators, correlations, curveHistory, spreadHistory, sp500Rows, europeRows }: Props) {
+export function DashboardTabs({ indicators, correlations, curveHistory, spreadHistory, sp500Rows, europeRows, lastSyncTime }: Props) {
   const [section, setSection] = useState<Section>("macro");
   const [active, setActive] = useState<TabKey>("overview");
 
@@ -1218,7 +1411,7 @@ export function DashboardTabs({ indicators, correlations, curveHistory, spreadHi
             </nav>
           </div>
 
-          <p className="text-xs text-gray-400 -mt-4">All prices are end-of-day. Data updates when sync is run manually.</p>
+          <p className="text-xs text-gray-400 -mt-4">All prices are end-of-day. Data updates when sync is run manually. · Last synced: <span className="font-medium text-gray-500">{lastSyncTime}</span></p>
 
           {active === "overview" && <OverviewTab indicators={allIndicators} />}
           {active === "signals" && <SignalsTab bySlug={bySlug} />}
@@ -1236,7 +1429,7 @@ export function DashboardTabs({ indicators, correlations, curveHistory, spreadHi
             No S&amp;P 500 data available. Check the database connection.
           </div>
         ) : (
-          <SP500Section rows={sp500Rows} indexValue={sp500Index?.value ?? null} indexChangePct={sp500Index?.change_pct ?? null} />
+          <SP500Section rows={sp500Rows} indexValue={sp500Index?.value ?? null} indexChangePct={sp500Index?.change_pct ?? null} lastSyncTime={lastSyncTime} />
         )
       )}
 
@@ -1247,7 +1440,7 @@ export function DashboardTabs({ indicators, correlations, curveHistory, spreadHi
             No European data available. Check the database connection.
           </div>
         ) : (
-          <EuropeSection rows={europeRows} indexValue={stoxx600Index?.value ?? null} indexChangePct={stoxx600Index?.change_pct ?? null} />
+          <EuropeSection rows={europeRows} indexValue={stoxx600Index?.value ?? null} indexChangePct={stoxx600Index?.change_pct ?? null} lastSyncTime={lastSyncTime} />
         )
       )}
     </div>

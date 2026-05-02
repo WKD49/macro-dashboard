@@ -428,7 +428,7 @@ function ReportingFilter({ rows }: { rows: SP500CompanyRow[] }) {
 const TABS = ["Summary", "Signals", "Movers", "Earnings", "Valuations"] as const;
 type Tab = typeof TABS[number];
 
-export function SP500Section({ rows, indexValue, indexChangePct }: { rows: SP500CompanyRow[]; indexValue: number | null; indexChangePct: number | null }) {
+export function SP500Section({ rows, indexValue, indexChangePct, lastSyncTime }: { rows: SP500CompanyRow[]; indexValue: number | null; indexChangePct: number | null; lastSyncTime?: string }) {
   const [activeTab, setActiveTab] = useState<Tab>("Summary");
 
   const now = new Date();
@@ -544,7 +544,7 @@ export function SP500Section({ rows, indexValue, indexChangePct }: { rows: SP500
           <span className="text-xs text-gray-400">(last price)</span>
         </div>
       )}
-      <p className="mt-2 text-xs text-gray-400">All prices below are end-of-day. Data updates when sync is run manually.</p>
+      <p className="mt-2 text-xs text-gray-400">All prices below are end-of-day. Data updates when sync is run manually.{lastSyncTime && <> · Last synced: <span className="font-medium text-gray-500">{lastSyncTime}</span></>}</p>
 
       <div className="mt-4">
 

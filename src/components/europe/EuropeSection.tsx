@@ -431,7 +431,7 @@ function EarningsFilter({ rows }: { rows: EuropeanCompanyRow[] }) {
 const TABS = ["Summary", "Signals", "Movers", "Earnings", "Valuations"] as const;
 type Tab = typeof TABS[number];
 
-export function EuropeSection({ rows, indexValue, indexChangePct }: { rows: EuropeanCompanyRow[]; indexValue: number | null; indexChangePct: number | null }) {
+export function EuropeSection({ rows, indexValue, indexChangePct, lastSyncTime }: { rows: EuropeanCompanyRow[]; indexValue: number | null; indexChangePct: number | null; lastSyncTime?: string }) {
   const [activeTab, setActiveTab] = useState<Tab>("Summary");
 
   const now = new Date();
@@ -538,7 +538,7 @@ export function EuropeSection({ rows, indexValue, indexChangePct }: { rows: Euro
           <span className="text-xs text-gray-400">(last price)</span>
         </div>
       )}
-      <p className="mt-2 text-xs text-gray-400">All prices below are end-of-day. Data updates when sync is run manually.</p>
+      <p className="mt-2 text-xs text-gray-400">All prices below are end-of-day. Data updates when sync is run manually.{lastSyncTime && <> · Last synced: <span className="font-medium text-gray-500">{lastSyncTime}</span></>}</p>
 
       <div className="mt-4">
 

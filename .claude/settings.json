@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Read(//Users/karen.kemble-diaz/dev/Europe_dashboard/**)"
+      "Read(//Users/karen.kemble-diaz/dev/Europe_dashboard/**)",
+      "Read(//Users/karen.kemble-diaz/dev/sp500-dashboard/node_modules/yahoo-finance2/script/src/**)",
+      "Read(//Users/karen.kemble-diaz/dev/sp500-dashboard/**)",
+      "Bash(npx tsx:*)",
+      "Bash(npm run:*)"
+    ],
+    "additionalDirectories": [
+      "/Users/karen.kemble-diaz/dev/sp500-dashboard/scripts"
     ]
   }
 }

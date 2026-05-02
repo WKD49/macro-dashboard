@@ -1,7 +1,8 @@
 // european-large-caps-list.ts
 // European large-cap constituents (expanded from FTSEurofirst 100, as of March 2026).
 // Covers: Netherlands, Germany, France, UK, Spain, Italy, Switzerland, Denmark,
-//         Sweden, Finland, Belgium, Austria, Ireland.
+//         Sweden, Finland, Belgium, Austria, Ireland, Portugal, Poland,
+//         Czech Republic, Hungary, Greece, Romania, Luxembourg.
 //
 // symbol        = Finnhub/Yahoo Finance ticker — used as the DB primary key (globally unique)
 //                 e.g. "ASML.AS", "AZN.L", "SAP.XETRA", "NESN.SW"
@@ -283,7 +284,7 @@ export const EUROPEAN_LARGE_CAPS: Constituent[] = [
   { symbol: "DSV.CO",      name: "DSV A/S",                        country: "Denmark", sector: "Industrials",  stooq_ticker: "dsv.dk",     finnhub_ticker: "DSV.CO",      index_weight: 0.0050 },
   { symbol: "DANSKE.CO",   name: "Danske Bank A/S",                country: "Denmark", sector: "Financials",   stooq_ticker: "danske.dk",  finnhub_ticker: "DANSKE.CO",   index_weight: 0.0030 },
   { symbol: "ORSTED.CO",  name: "Ørsted A/S",                     country: "Denmark", sector: "Utilities",    stooq_ticker: "orsted.dk",  finnhub_ticker: "ORSTED.CO",   index_weight: 0.0022 },
-  { symbol: "NSIS-B.CO",  name: "Novonesis A/S",                  country: "Denmark", sector: "Materials",    stooq_ticker: "nsisb.dk",   finnhub_ticker: "NSIS-B.CO",   index_weight: 0.0020 }, // VERIFY: formerly Novozymes NZYM-B.CO; rebranded 2024
+  // Novonesis (NZYM-B.CO) omitted — post-merger ticker not yet resolvable via Yahoo Finance (as of Mar 2026)
   { symbol: "VWS.CO",     name: "Vestas Wind Systems A/S",        country: "Denmark", sector: "Industrials",  stooq_ticker: "vws.dk",     finnhub_ticker: "VWS.CO",      index_weight: 0.0019 },
   { symbol: "CARL-B.CO",  name: "Carlsberg A/S",                  country: "Denmark", sector: "Consumer Staples", stooq_ticker: "carlb.dk", finnhub_ticker: "CARL-B.CO",  index_weight: 0.0015 },
   { symbol: "COLO-B.CO",  name: "Coloplast A/S",                  country: "Denmark", sector: "Health Care",      stooq_ticker: "colob.dk",  finnhub_ticker: "COLO-B.CO",  index_weight: 0.0012 },
@@ -348,6 +349,427 @@ export const EUROPEAN_LARGE_CAPS: Constituent[] = [
   { symbol: "BIRG.IR", name: "Bank of Ireland Group plc",   country: "Ireland", sector: "Financials",       stooq_ticker: "birg.ie", finnhub_ticker: "BIRG.IR", index_weight: 0.0013 },
   { symbol: "KRX.IR",  name: "Kingspan Group plc",          country: "Ireland", sector: "Industrials",      stooq_ticker: "krx.ie",  finnhub_ticker: "KRX.IR",  index_weight: 0.0013 },
   { symbol: "KRZ.IR",  name: "Kerry Group plc",             country: "Ireland", sector: "Consumer Staples", stooq_ticker: "krz.ie",  finnhub_ticker: "KRZ.IR",  index_weight: 0.0010 },
+
+  // ── FRANCE (additional) ──────────────────────────────────────────────────────
+  { symbol: "AKE.PA",  name: "Arkema SA",                     country: "France",   sector: "Materials",              stooq_ticker: "ake.fr",   finnhub_ticker: "AKE.PA",   index_weight: 0.0010 },
+  { symbol: "ATO.PA",  name: "Atos SE",                       country: "France",   sector: "Information Technology", stooq_ticker: "ato.fr",   finnhub_ticker: "ATO.PA",   index_weight: 0.0005 },
+  { symbol: "BB.PA",   name: "Société BIC SA",                country: "France",   sector: "Consumer Staples",       stooq_ticker: "bb.fr",    finnhub_ticker: "BB.PA",    index_weight: 0.0006 },
+  { symbol: "GFC.PA",  name: "Gecina SA",                     country: "France",   sector: "Real Estate",            stooq_ticker: "gfc.fr",   finnhub_ticker: "GFC.PA",   index_weight: 0.0010 },
+  { symbol: "GET.PA",  name: "Getlink SE",                    country: "France",   sector: "Industrials",            stooq_ticker: "get.fr",   finnhub_ticker: "GET.PA",   index_weight: 0.0008 },
+  { symbol: "LI.PA",   name: "Klépierre SA",                  country: "France",   sector: "Real Estate",            stooq_ticker: "li.fr",    finnhub_ticker: "LI.PA",    index_weight: 0.0010 },
+  { symbol: "RXL.PA",  name: "Rexel SA",                      country: "France",   sector: "Industrials",            stooq_ticker: "rxl.fr",   finnhub_ticker: "RXL.PA",   index_weight: 0.0010 },
+  { symbol: "SCR.PA",  name: "SCOR SE",                       country: "France",   sector: "Financials",             stooq_ticker: "scr.fr",   finnhub_ticker: "SCR.PA",   index_weight: 0.0008 },
+  { symbol: "MF.PA",   name: "Wendel SE",                     country: "France",   sector: "Financials",             stooq_ticker: "mf.fr",    finnhub_ticker: "MF.PA",    index_weight: 0.0008 },
+
+  // ── GERMANY (additional) ─────────────────────────────────────────────────────
+  { symbol: "EVK.XETRA",  name: "Evonik Industries AG",       country: "Germany",  sector: "Materials",              stooq_ticker: "evk.de",   finnhub_ticker: "EVK.XETRA",  index_weight: 0.0008 },
+  { symbol: "G1A.XETRA",  name: "GEA Group AG",               country: "Germany",  sector: "Industrials",            stooq_ticker: "g1a.de",   finnhub_ticker: "G1A.XETRA",  index_weight: 0.0008 },
+  { symbol: "BOSS.XETRA", name: "Hugo Boss AG",               country: "Germany",  sector: "Consumer Discretionary", stooq_ticker: "boss.de",  finnhub_ticker: "BOSS.XETRA", index_weight: 0.0007 },
+  { symbol: "SDF.XETRA",  name: "K+S AG",                     country: "Germany",  sector: "Materials",              stooq_ticker: "sdf.de",   finnhub_ticker: "SDF.XETRA",  index_weight: 0.0007 },
+  { symbol: "LEG.XETRA",  name: "LEG Immobilien SE",          country: "Germany",  sector: "Real Estate",            stooq_ticker: "leg.de",   finnhub_ticker: "LEG.XETRA",  index_weight: 0.0007 },
+  { symbol: "LXS.XETRA",  name: "Lanxess AG",                 country: "Germany",  sector: "Materials",              stooq_ticker: "lxs.de",   finnhub_ticker: "LXS.XETRA",  index_weight: 0.0007 },
+  { symbol: "QIA.XETRA",  name: "Qiagen NV",                  country: "Germany",  sector: "Health Care",            stooq_ticker: "qia.de",   finnhub_ticker: "QIA.XETRA",  index_weight: 0.0009 },
+  { symbol: "UTDI.XETRA", name: "United Internet AG",         country: "Germany",  sector: "Communication Services", stooq_ticker: "utdi.de",  finnhub_ticker: "UTDI.XETRA", index_weight: 0.0006 },
+
+  // ── SPAIN (additional) ───────────────────────────────────────────────────────
+  { symbol: "ENG.MC",  name: "Enagás SA",                     country: "Spain",    sector: "Utilities",              stooq_ticker: "eng.es",   finnhub_ticker: "ENG.MC",   index_weight: 0.0007 },
+  { symbol: "GRF.MC",  name: "Grifols SA",                    country: "Spain",    sector: "Health Care",            stooq_ticker: "grf.es",   finnhub_ticker: "GRF.MC",   index_weight: 0.0007 },
+  { symbol: "RED.MC",  name: "Redeia Corporación SA",         country: "Spain",    sector: "Utilities",              stooq_ticker: "red.es",   finnhub_ticker: "RED.MC",   index_weight: 0.0007 },
+
+  // ── FINLAND (additional) ─────────────────────────────────────────────────────
+  { symbol: "ELISA.HE",  name: "Elisa Oyj",                   country: "Finland",  sector: "Communication Services", stooq_ticker: "elisa.fi", finnhub_ticker: "ELISA.HE", index_weight: 0.0007 },
+  { symbol: "STERV.HE",  name: "Stora Enso Oyj R",            country: "Finland",  sector: "Materials",              stooq_ticker: "sterv.fi", finnhub_ticker: "STERV.HE", index_weight: 0.0008 },
+
+  // ── BELGIUM (additional) ─────────────────────────────────────────────────────
+  { symbol: "GBLB.BR",  name: "Groupe Bruxelles Lambert SA",  country: "Belgium",  sector: "Financials",             stooq_ticker: "gblb.be",  finnhub_ticker: "GBLB.BR",  index_weight: 0.0010 },
+  { symbol: "PROX.BR",  name: "Proximus PLC",                 country: "Belgium",  sector: "Communication Services", stooq_ticker: "prox.be",  finnhub_ticker: "PROX.BR",  index_weight: 0.0007 },
+  { symbol: "SOLB.BR",  name: "Solvay SA",                    country: "Belgium",  sector: "Materials",              stooq_ticker: "solb.be",  finnhub_ticker: "SOLB.BR",  index_weight: 0.0008 },
+  { symbol: "UMI.BR",   name: "Umicore SA",                   country: "Belgium",  sector: "Materials",              stooq_ticker: "umi.be",   finnhub_ticker: "UMI.BR",   index_weight: 0.0007 },
+
+  // ── AUSTRIA (additional) ─────────────────────────────────────────────────────
+  { symbol: "ANDR.VI",  name: "Andritz AG",                   country: "Austria",  sector: "Industrials",            stooq_ticker: "andr.at",  finnhub_ticker: "ANDR.VI",  index_weight: 0.0008 },
+
+  // ── ITALY (additional) ───────────────────────────────────────────────────────
+  { symbol: "TEN.MI",   name: "Tenaris SA",                   country: "Italy",    sector: "Energy",                 stooq_ticker: "ten.it",   finnhub_ticker: "TEN.MI",   index_weight: 0.0010 },
+
+  // ── PORTUGAL ─────────────────────────────────────────────────────────────────
+  { symbol: "GALP.LS",  name: "Galp Energia SGPS SA",         country: "Portugal", sector: "Energy",                 stooq_ticker: "galp.pt",  finnhub_ticker: "GALP.LS",  index_weight: 0.0010 },
+
+  // ── SWITZERLAND (additional) ─────────────────────────────────────────────────
+  { symbol: "GIVN.SW",  name: "Givaudan SA",                  country: "Switzerland", sector: "Materials",           stooq_ticker: "givn.sw",  finnhub_ticker: "GIVN.SW",  index_weight: 0.0025 },
+  { symbol: "LONN.SW",  name: "Lonza Group AG",               country: "Switzerland", sector: "Health Care",         stooq_ticker: "lonn.sw",  finnhub_ticker: "LONN.SW",  index_weight: 0.0022 },
+  { symbol: "ALC.SW",   name: "Alcon Inc",                    country: "Switzerland", sector: "Health Care",         stooq_ticker: "alc.sw",   finnhub_ticker: "ALC.SW",   index_weight: 0.0020 },
+  { symbol: "SCHP.SW",  name: "Schindler Holding AG",         country: "Switzerland", sector: "Industrials",         stooq_ticker: "schp.sw",  finnhub_ticker: "SCHP.SW",  index_weight: 0.0012 },
+  { symbol: "SDZ.SW",   name: "Sandoz Group AG",              country: "Switzerland", sector: "Health Care",         stooq_ticker: "sdz.sw",   finnhub_ticker: "SDZ.SW",   index_weight: 0.0010 },
+  { symbol: "LISP.SW",  name: "Lindt & Sprüngli AG",          country: "Switzerland", sector: "Consumer Staples",    stooq_ticker: "lisp.sw",  finnhub_ticker: "LISP.SW",  index_weight: 0.0014 },
+  { symbol: "GALD.SW",  name: "Galderma Group AG",            country: "Switzerland", sector: "Health Care",         stooq_ticker: "gald.sw",  finnhub_ticker: "GALD.SW",  index_weight: 0.0010 },
+  { symbol: "SLHN.SW",  name: "Swiss Life Holding AG",        country: "Switzerland", sector: "Financials",          stooq_ticker: "slhn.sw",  finnhub_ticker: "SLHN.SW",  index_weight: 0.0012 },
+
+  // ── GERMANY (additional 2) ───────────────────────────────────────────────────
+  { symbol: "LHA.XETRA",   name: "Deutsche Lufthansa AG",      country: "Germany",  sector: "Industrials",            stooq_ticker: "lha.de",    finnhub_ticker: "LHA.XETRA",   index_weight: 0.0015 },
+  { symbol: "HAG.XETRA",   name: "Hensoldt AG",                country: "Germany",  sector: "Industrials",            stooq_ticker: "hag.de",    finnhub_ticker: "HAG.XETRA",   index_weight: 0.0010 },
+  { symbol: "HLE.XETRA",   name: "HELLA GmbH & Co KGaA",      country: "Germany",  sector: "Consumer Discretionary", stooq_ticker: "hle.de",    finnhub_ticker: "HLE.XETRA",   index_weight: 0.0010 },
+  { symbol: "NEM.XETRA",   name: "Nemetschek SE",              country: "Germany",  sector: "Information Technology", stooq_ticker: "nem.de",    finnhub_ticker: "NEM.XETRA",   index_weight: 0.0010 },
+  { symbol: "DWNI.XETRA",  name: "Deutsche Wohnen SE",         country: "Germany",  sector: "Real Estate",            stooq_ticker: "dwni.de",   finnhub_ticker: "DWNI.XETRA",  index_weight: 0.0010 },
+  { symbol: "RAA.XETRA",   name: "Rational AG",                country: "Germany",  sector: "Industrials",            stooq_ticker: "raa.de",    finnhub_ticker: "RAA.XETRA",   index_weight: 0.0009 },
+  { symbol: "FRA.XETRA",   name: "Fraport AG",                 country: "Germany",  sector: "Industrials",            stooq_ticker: "fra.de",    finnhub_ticker: "FRA.XETRA",   index_weight: 0.0009 },
+  { symbol: "SHA0.XETRA",  name: "Schaeffler AG",              country: "Germany",  sector: "Consumer Discretionary", stooq_ticker: "sha0.de",   finnhub_ticker: "SHA0.XETRA",  index_weight: 0.0009 },
+  { symbol: "NDA.XETRA",   name: "Aurubis AG",                 country: "Germany",  sector: "Materials",              stooq_ticker: "nda.de",    finnhub_ticker: "NDA.XETRA",   index_weight: 0.0008 },
+  { symbol: "EVD.XETRA",   name: "CTS Eventim AG & Co KGaA",  country: "Germany",  sector: "Communication Services", stooq_ticker: "evd.de",    finnhub_ticker: "EVD.XETRA",   index_weight: 0.0008 },
+  { symbol: "KGX.XETRA",   name: "KION Group AG",              country: "Germany",  sector: "Industrials",            stooq_ticker: "kgx.de",    finnhub_ticker: "KGX.XETRA",   index_weight: 0.0008 },
+  { symbol: "OHB.XETRA",   name: "OHB SE",                    country: "Germany",  sector: "Industrials",            stooq_ticker: "ohb.de",    finnhub_ticker: "OHB.XETRA",   index_weight: 0.0007 },
+  { symbol: "TKMS.XETRA",  name: "Thyssenkrupp Marine Systems AG", country: "Germany", sector: "Industrials",         stooq_ticker: "tkms.de",   finnhub_ticker: "TKMS.XETRA",  index_weight: 0.0007 },
+  { symbol: "TKA.XETRA",   name: "Thyssenkrupp AG",            country: "Germany",  sector: "Industrials",            stooq_ticker: "tka.de",    finnhub_ticker: "TKA.XETRA",   index_weight: 0.0007 },
+  { symbol: "DHER.XETRA",  name: "Delivery Hero SE",           country: "Germany",  sector: "Consumer Discretionary", stooq_ticker: "dher.de",   finnhub_ticker: "DHER.XETRA",  index_weight: 0.0007 },
+  { symbol: "R3NK.XETRA",  name: "RENK Group AG",              country: "Germany",  sector: "Industrials",            stooq_ticker: "r3nk.de",   finnhub_ticker: "R3NK.XETRA",  index_weight: 0.0007 },
+  { symbol: "FPE.XETRA",   name: "Fuchs Petrolub SE",          country: "Germany",  sector: "Materials",              stooq_ticker: "fpe.de",    finnhub_ticker: "FPE.XETRA",   index_weight: 0.0006 },
+  { symbol: "G24.XETRA",   name: "Scout24 SE",                 country: "Germany",  sector: "Communication Services", stooq_ticker: "g24.de",    finnhub_ticker: "G24.XETRA",   index_weight: 0.0006 },
+  { symbol: "1U1.XETRA",   name: "1&1 AG",                     country: "Germany",  sector: "Communication Services", stooq_ticker: "1u1.de",    finnhub_ticker: "1U1.XETRA",   index_weight: 0.0006 },
+  { symbol: "WCH.XETRA",   name: "Wacker Chemie AG",           country: "Germany",  sector: "Materials",              stooq_ticker: "wch.de",    finnhub_ticker: "WCH.XETRA",   index_weight: 0.0005 },
+  { symbol: "AIXA.XETRA",  name: "Aixtron SE",                 country: "Germany",  sector: "Information Technology", stooq_ticker: "aixa.de",   finnhub_ticker: "AIXA.XETRA",  index_weight: 0.0005 },
+  { symbol: "SPG.XETRA",   name: "Springer Nature AG",         country: "Germany",  sector: "Communication Services", stooq_ticker: "spg.de",    finnhub_ticker: "SPG.XETRA",   index_weight: 0.0005 },
+  { symbol: "GIL.XETRA",   name: "DMG Mori AG",                country: "Germany",  sector: "Industrials",            stooq_ticker: "gil.de",    finnhub_ticker: "GIL.XETRA",   index_weight: 0.0005 },
+  { symbol: "GBF.XETRA",   name: "Bilfinger SE",               country: "Germany",  sector: "Industrials",            stooq_ticker: "gbf.de",    finnhub_ticker: "GBF.XETRA",   index_weight: 0.0005 },
+  { symbol: "KRN.XETRA",   name: "Krones AG",                  country: "Germany",  sector: "Industrials",            stooq_ticker: "krn.de",    finnhub_ticker: "KRN.XETRA",   index_weight: 0.0005 },
+  { symbol: "FIE.XETRA",   name: "Fielmann AG",                country: "Germany",  sector: "Health Care",            stooq_ticker: "fie.de",    finnhub_ticker: "FIE.XETRA",   index_weight: 0.0005 },
+  { symbol: "AG1.XETRA",   name: "AUTO1 Group SE",             country: "Germany",  sector: "Consumer Discretionary", stooq_ticker: "ag1.de",    finnhub_ticker: "AG1.XETRA",   index_weight: 0.0005 },
+  { symbol: "TUI1.XETRA",  name: "TUI AG",                     country: "Germany",  sector: "Consumer Discretionary", stooq_ticker: "tui1.de",   finnhub_ticker: "TUI1.XETRA",  index_weight: 0.0005 },
+  { symbol: "OBCK.XETRA",  name: "Ottobock SE & Co KGaA",     country: "Germany",  sector: "Health Care",            stooq_ticker: "obck.de",   finnhub_ticker: "OBCK.XETRA",  index_weight: 0.0004 },
+  { symbol: "BC8.XETRA",   name: "Bechtle AG",                 country: "Germany",  sector: "Information Technology", stooq_ticker: "bc8.de",    finnhub_ticker: "BC8.XETRA",   index_weight: 0.0004 },
+  { symbol: "IOS.XETRA",   name: "IONOS Group SE",             country: "Germany",  sector: "Communication Services", stooq_ticker: "ios.de",    finnhub_ticker: "IOS.XETRA",   index_weight: 0.0004 },
+  { symbol: "FTK.XETRA",   name: "flatexDEGIRO AG",            country: "Germany",  sector: "Financials",             stooq_ticker: "ftk.de",    finnhub_ticker: "FTK.XETRA",   index_weight: 0.0004 },
+  { symbol: "PUM.XETRA",   name: "PUMA SE",                    country: "Germany",  sector: "Consumer Discretionary", stooq_ticker: "pum.de",    finnhub_ticker: "PUM.XETRA",   index_weight: 0.0004 },
+  { symbol: "FNTN.XETRA",  name: "freenet AG",                 country: "Germany",  sector: "Communication Services", stooq_ticker: "fntn.de",   finnhub_ticker: "FNTN.XETRA",  index_weight: 0.0004 },
+  { symbol: "SIX2.XETRA",  name: "Sixt SE",                    country: "Germany",  sector: "Industrials",            stooq_ticker: "six2.de",   finnhub_ticker: "SIX2.XETRA",  index_weight: 0.0004 },
+  { symbol: "JUN3.XETRA",  name: "Jungheinrich AG",            country: "Germany",  sector: "Industrials",            stooq_ticker: "jun3.de",   finnhub_ticker: "JUN3.XETRA",  index_weight: 0.0004 },
+  { symbol: "VBK.XETRA",   name: "Verbio SE",                  country: "Germany",  sector: "Energy",                 stooq_ticker: "vbk.de",    finnhub_ticker: "VBK.XETRA",   index_weight: 0.0004 },
+  { symbol: "ELG.XETRA",   name: "Elmos Semiconductor SE",     country: "Germany",  sector: "Information Technology", stooq_ticker: "elg.de",    finnhub_ticker: "ELG.XETRA",   index_weight: 0.0003 },
+  { symbol: "TEG.XETRA",   name: "TAG Immobilien AG",          country: "Germany",  sector: "Real Estate",            stooq_ticker: "teg.de",    finnhub_ticker: "TEG.XETRA",   index_weight: 0.0003 },
+  { symbol: "DMP.XETRA",   name: "Dermapharm Holding SE",      country: "Germany",  sector: "Health Care",            stooq_ticker: "dmp.de",    finnhub_ticker: "DMP.XETRA",   index_weight: 0.0003 },
+
+  // ── UK (additional) ──────────────────────────────────────────────────────────
+  { symbol: "CCEP.L",   name: "Coca-Cola Europacific Partners plc", country: "United Kingdom", sector: "Consumer Staples",       stooq_ticker: "ccep.uk",  finnhub_ticker: "CCEP.L",   index_weight: 0.0032 },
+  { symbol: "FRES.L",   name: "Fresnillo plc",                country: "United Kingdom", sector: "Materials",              stooq_ticker: "fres.uk",  finnhub_ticker: "FRES.L",   index_weight: 0.0025 },
+  { symbol: "CCH.L",    name: "Coca-Cola HBC AG",             country: "United Kingdom", sector: "Consumer Staples",       stooq_ticker: "cch.uk",   finnhub_ticker: "CCH.L",    index_weight: 0.0016 },
+  { symbol: "SMT.L",    name: "Scottish Mortgage Investment Trust plc", country: "United Kingdom", sector: "Financials",    stooq_ticker: "smt.uk",   finnhub_ticker: "SMT.L",    index_weight: 0.0013 },
+  { symbol: "EDV.L",    name: "Endeavour Mining plc",         country: "United Kingdom", sector: "Materials",              stooq_ticker: "edv.uk",   finnhub_ticker: "EDV.L",    index_weight: 0.0011 },
+  { symbol: "PSH.L",    name: "Pershing Square Holdings Ltd", country: "United Kingdom", sector: "Financials",             stooq_ticker: "psh.uk",   finnhub_ticker: "PSH.L",    index_weight: 0.0007 },
+  { symbol: "PSON.L",   name: "Pearson plc",                  country: "United Kingdom", sector: "Communication Services", stooq_ticker: "pson.uk",  finnhub_ticker: "PSON.L",   index_weight: 0.0006 },
+  { symbol: "FCIT.L",   name: "F&C Investment Trust plc",     country: "United Kingdom", sector: "Financials",             stooq_ticker: "fcit.uk",  finnhub_ticker: "FCIT.L",   index_weight: 0.0006 },
+  { symbol: "PCT.L",    name: "Polar Capital Technology Trust plc", country: "United Kingdom", sector: "Financials",        stooq_ticker: "pct.uk",   finnhub_ticker: "PCT.L",    index_weight: 0.0006 },
+  { symbol: "HSX.L",    name: "Hiscox Ltd",                   country: "United Kingdom", sector: "Financials",             stooq_ticker: "hsx.uk",   finnhub_ticker: "HSX.L",    index_weight: 0.0005 },
+  { symbol: "IGG.L",    name: "IG Group Holdings plc",        country: "United Kingdom", sector: "Financials",             stooq_ticker: "igg.uk",   finnhub_ticker: "IGG.L",    index_weight: 0.0005 },
+  { symbol: "ALW.L",    name: "Alliance Witan plc",           country: "United Kingdom", sector: "Financials",             stooq_ticker: "alw.uk",   finnhub_ticker: "ALW.L",    index_weight: 0.0005 },
+  { symbol: "ICG.L",    name: "ICG plc",                      country: "United Kingdom", sector: "Financials",             stooq_ticker: "icg.uk",   finnhub_ticker: "ICG.L",    index_weight: 0.0005 },
+  { symbol: "CTEC.L",   name: "ConvaTec Group plc",           country: "United Kingdom", sector: "Health Care",            stooq_ticker: "ctec.uk",  finnhub_ticker: "CTEC.L",   index_weight: 0.0007 },
+  { symbol: "HWDN.L",   name: "Howden Joinery Group plc",     country: "United Kingdom", sector: "Consumer Discretionary", stooq_ticker: "hwdn.uk",  finnhub_ticker: "HWDN.L",   index_weight: 0.0007 },
+  { symbol: "MTLN.L",   name: "Metlen Energy & Metals plc",   country: "United Kingdom", sector: "Materials",              stooq_ticker: "mtln.uk",  finnhub_ticker: "MTLN.L",   index_weight: 0.0007 },
+  { symbol: "LMP.L",    name: "LondonMetric Property plc",    country: "United Kingdom", sector: "Real Estate",            stooq_ticker: "lmp.uk",   finnhub_ticker: "LMP.L",    index_weight: 0.0007 },
+  { symbol: "BGEO.L",   name: "Lion Finance Group plc",       country: "United Kingdom", sector: "Financials",             stooq_ticker: "bgeo.uk",  finnhub_ticker: "BGEO.L",   index_weight: 0.0007 },
+  { symbol: "LAND.L",   name: "Land Securities Group plc",    country: "United Kingdom", sector: "Real Estate",            stooq_ticker: "land.uk",  finnhub_ticker: "LAND.L",   index_weight: 0.0007 },
+  { symbol: "CRDA.L",   name: "Croda International plc",      country: "United Kingdom", sector: "Materials",              stooq_ticker: "crda.uk",  finnhub_ticker: "CRDA.L",   index_weight: 0.0006 },
+  { symbol: "DCC.L",    name: "DCC plc",                      country: "United Kingdom", sector: "Industrials",            stooq_ticker: "dcc.uk",   finnhub_ticker: "DCC.L",    index_weight: 0.0006 },
+  { symbol: "WTB.L",    name: "Whitbread plc",                country: "United Kingdom", sector: "Consumer Discretionary", stooq_ticker: "wtb.uk",   finnhub_ticker: "WTB.L",    index_weight: 0.0006 },
+  { symbol: "BBOX.L",   name: "Tritax Big Box REIT plc",      country: "United Kingdom", sector: "Real Estate",            stooq_ticker: "bbox.uk",  finnhub_ticker: "BBOX.L",   index_weight: 0.0006 },
+  { symbol: "AUTO.L",   name: "Auto Trader Group plc",        country: "United Kingdom", sector: "Communication Services", stooq_ticker: "auto.uk",  finnhub_ticker: "AUTO.L",   index_weight: 0.0006 },
+  { symbol: "BTRW.L",   name: "Barratt Redrow plc",           country: "United Kingdom", sector: "Consumer Discretionary", stooq_ticker: "btrw.uk",  finnhub_ticker: "BTRW.L",   index_weight: 0.0006 },
+  { symbol: "BRBY.L",   name: "Burberry Group plc",           country: "United Kingdom", sector: "Consumer Discretionary", stooq_ticker: "brby.uk",  finnhub_ticker: "BRBY.L",   index_weight: 0.0006 },
+  { symbol: "MNDI.L",   name: "Mondi plc",                    country: "United Kingdom", sector: "Materials",              stooq_ticker: "mndi.uk",  finnhub_ticker: "MNDI.L",   index_weight: 0.0006 },
+  { symbol: "ENT.L",    name: "Entain plc",                   country: "United Kingdom", sector: "Consumer Discretionary", stooq_ticker: "ent.uk",   finnhub_ticker: "ENT.L",    index_weight: 0.0006 },
+  { symbol: "PSN.L",    name: "Persimmon plc",                country: "United Kingdom", sector: "Consumer Discretionary", stooq_ticker: "psn.uk",   finnhub_ticker: "PSN.L",    index_weight: 0.0006 },
+  { symbol: "BLND.L",   name: "British Land Co plc",          country: "United Kingdom", sector: "Real Estate",            stooq_ticker: "blnd.uk",  finnhub_ticker: "BLND.L",   index_weight: 0.0006 },
+  { symbol: "JD.L",     name: "JD Sports Fashion plc",        country: "United Kingdom", sector: "Consumer Discretionary", stooq_ticker: "jd.uk",    finnhub_ticker: "JD.L",     index_weight: 0.0005 },
+  { symbol: "BKG.L",    name: "Berkeley Group Holdings plc",  country: "United Kingdom", sector: "Consumer Discretionary", stooq_ticker: "bkg.uk",   finnhub_ticker: "BKG.L",    index_weight: 0.0005 },
+  { symbol: "RMV.L",    name: "Rightmove plc",                country: "United Kingdom", sector: "Communication Services", stooq_ticker: "rmv.uk",   finnhub_ticker: "RMV.L",    index_weight: 0.0005 },
+
+  // ── FRANCE (additional 2) ────────────────────────────────────────────────────
+  { symbol: "SPIE.PA",  name: "SPIE SA",                      country: "France", sector: "Industrials",            stooq_ticker: "spie.fr",  finnhub_ticker: "SPIE.PA",  index_weight: 0.0010 },
+  { symbol: "SW.PA",    name: "Sodexo SA",                    country: "France", sector: "Consumer Discretionary", stooq_ticker: "sw.fr",    finnhub_ticker: "SW.PA",    index_weight: 0.0009 },
+  { symbol: "TE.PA",    name: "Technip Energies NV",          country: "France", sector: "Energy",                 stooq_ticker: "te.fr",    finnhub_ticker: "TE.PA",    index_weight: 0.0009 },
+  { symbol: "COV.PA",   name: "Covivio SA",                   country: "France", sector: "Real Estate",            stooq_ticker: "cov.fr",   finnhub_ticker: "COV.PA",   index_weight: 0.0008 },
+  { symbol: "ELIS.PA",  name: "Elis SA",                      country: "France", sector: "Industrials",            stooq_ticker: "elis.fr",  finnhub_ticker: "ELIS.PA",  index_weight: 0.0008 },
+  { symbol: "NEX.PA",   name: "Nexans SA",                    country: "France", sector: "Industrials",            stooq_ticker: "nex.fr",   finnhub_ticker: "NEX.PA",   index_weight: 0.0007 },
+  { symbol: "VK.PA",    name: "Vallourec SA",                 country: "France", sector: "Materials",              stooq_ticker: "vk.fr",    finnhub_ticker: "VK.PA",    index_weight: 0.0007 },
+  { symbol: "FDJ.PA",   name: "Française des Jeux SA",        country: "France", sector: "Consumer Discretionary", stooq_ticker: "fdj.fr",   finnhub_ticker: "FDJ.PA",   index_weight: 0.0007 },
+  { symbol: "DEC.PA",   name: "JCDecaux SE",                  country: "France", sector: "Communication Services", stooq_ticker: "dec.fr",   finnhub_ticker: "DEC.PA",   index_weight: 0.0006 },
+  { symbol: "RUI.PA",   name: "Rubis SCA",                    country: "France", sector: "Energy",                 stooq_ticker: "rui.fr",   finnhub_ticker: "RUI.PA",   index_weight: 0.0005 },
+  { symbol: "LOUP.PA",  name: "LDC SA",                       country: "France", sector: "Consumer Staples",       stooq_ticker: "loup.fr",  finnhub_ticker: "LOUP.PA",  index_weight: 0.0005 },
+  { symbol: "VIRP.PA",  name: "Virbac SA",                    country: "France", sector: "Health Care",            stooq_ticker: "virp.fr",  finnhub_ticker: "VIRP.PA",  index_weight: 0.0004 },
+  { symbol: "TRI.PA",   name: "Trigano SA",                   country: "France", sector: "Consumer Discretionary", stooq_ticker: "tri.fr",   finnhub_ticker: "TRI.PA",   index_weight: 0.0004 },
+  { symbol: "VCT.PA",   name: "Vicat SA",                     country: "France", sector: "Materials",              stooq_ticker: "vct.fr",   finnhub_ticker: "VCT.PA",   index_weight: 0.0004 },
+  { symbol: "TKO.PA",   name: "Tikehau Capital SCA",          country: "France", sector: "Financials",             stooq_ticker: "tko.fr",   finnhub_ticker: "TKO.PA",   index_weight: 0.0004 },
+  { symbol: "ALTA.PA",  name: "Altarea SCA",                  country: "France", sector: "Real Estate",            stooq_ticker: "alta.fr",  finnhub_ticker: "ALTA.PA",  index_weight: 0.0004 },
+  { symbol: "FR.PA",    name: "Valeo SE",                     country: "France", sector: "Consumer Discretionary", stooq_ticker: "fr.fr",    finnhub_ticker: "FR.PA",    index_weight: 0.0004 },
+  { symbol: "MMB.PA",   name: "Groupe Lagardère SA",          country: "France", sector: "Communication Services", stooq_ticker: "mmb.fr",   finnhub_ticker: "MMB.PA",   index_weight: 0.0004 },
+  { symbol: "RF.PA",    name: "Eurazeo SE",                   country: "France", sector: "Financials",             stooq_ticker: "rf.fr",    finnhub_ticker: "RF.PA",    index_weight: 0.0004 },
+  { symbol: "SK.PA",    name: "Groupe SEB SA",                country: "France", sector: "Consumer Discretionary", stooq_ticker: "sk.fr",    finnhub_ticker: "SK.PA",    index_weight: 0.0003 },
+  { symbol: "ETL.PA",   name: "Eutelsat Communications SA",   country: "France", sector: "Communication Services", stooq_ticker: "etl.fr",   finnhub_ticker: "ETL.PA",   index_weight: 0.0003 },
+  { symbol: "FII.PA",   name: "Lisi SA",                      country: "France", sector: "Industrials",            stooq_ticker: "fii.fr",   finnhub_ticker: "FII.PA",   index_weight: 0.0003 },
+  { symbol: "AF.PA",    name: "Air France-KLM SA",            country: "France", sector: "Industrials",            stooq_ticker: "af.fr",    finnhub_ticker: "AF.PA",    index_weight: 0.0003 },
+  { symbol: "CARM.PA",  name: "Carmila SAS",                  country: "France", sector: "Real Estate",            stooq_ticker: "carm.fr",  finnhub_ticker: "CARM.PA",  index_weight: 0.0003 },
+  { symbol: "COFA.PA",  name: "Coface SA",                    country: "France", sector: "Financials",             stooq_ticker: "cofa.fr",  finnhub_ticker: "COFA.PA",  index_weight: 0.0003 },
+  { symbol: "SOP.PA",   name: "Sopra Steria Group SA",        country: "France", sector: "Information Technology", stooq_ticker: "sop.fr",   finnhub_ticker: "SOP.PA",   index_weight: 0.0003 },
+  { symbol: "OPM.PA",   name: "OPmobility SE",                country: "France", sector: "Consumer Discretionary", stooq_ticker: "opm.fr",   finnhub_ticker: "OPM.PA",   index_weight: 0.0003 },
+  { symbol: "IDL.PA",   name: "ID Logistics Group SA",        country: "France", sector: "Industrials",            stooq_ticker: "idl.fr",   finnhub_ticker: "IDL.PA",   index_weight: 0.0003 },
+  { symbol: "VRLA.PA",  name: "Verallia SA",                  country: "France", sector: "Materials",              stooq_ticker: "vrla.fr",  finnhub_ticker: "VRLA.PA",  index_weight: 0.0003 },
+  { symbol: "MAU.PA",   name: "Etablissements Maurel & Prom", country: "France", sector: "Energy",                 stooq_ticker: "mau.fr",   finnhub_ticker: "MAU.PA",   index_weight: 0.0003 },
+  { symbol: "EXA.PA",   name: "Exail Technologies SA",        country: "France", sector: "Industrials",            stooq_ticker: "exa.fr",   finnhub_ticker: "EXA.PA",   index_weight: 0.0003 },
+  { symbol: "EMEIS.PA", name: "EMEIS SE",                     country: "France", sector: "Health Care",            stooq_ticker: "emeis.fr", finnhub_ticker: "EMEIS.PA", index_weight: 0.0003 },
+  { symbol: "RCO.PA",   name: "Rémy Cointreau SA",            country: "France", sector: "Consumer Staples",       stooq_ticker: "rco.fr",   finnhub_ticker: "RCO.PA",   index_weight: 0.0003 },
+  { symbol: "SOI.PA",   name: "Soitec SA",                    country: "France", sector: "Information Technology", stooq_ticker: "soi.fr",   finnhub_ticker: "SOI.PA",   index_weight: 0.0003 },
+  { symbol: "NK.PA",    name: "Imerys SA",                    country: "France", sector: "Materials",              stooq_ticker: "nk.fr",    finnhub_ticker: "NK.PA",    index_weight: 0.0003 },
+  { symbol: "ATE.PA",   name: "ALTEN SA",                     country: "France", sector: "Information Technology", stooq_ticker: "ate.fr",   finnhub_ticker: "ATE.PA",   index_weight: 0.0003 },
+  { symbol: "FRVIA.PA", name: "Forvia SE",                    country: "France", sector: "Consumer Discretionary", stooq_ticker: "frvia.fr", finnhub_ticker: "FRVIA.PA", index_weight: 0.0003 },
+
+  // ── ITALY (additional) ───────────────────────────────────────────────────────
+  { symbol: "EDNR.MI",  name: "Edison SpA",                   country: "Italy", sector: "Utilities",              stooq_ticker: "ednr.it",  finnhub_ticker: "EDNR.MI",  index_weight: 0.0015 },
+  { symbol: "REC.MI",   name: "Recordati SpA",                country: "Italy", sector: "Health Care",            stooq_ticker: "rec.it",   finnhub_ticker: "REC.MI",   index_weight: 0.0014 },
+  { symbol: "TPRO.MI",  name: "Technoprobe SpA",              country: "Italy", sector: "Information Technology", stooq_ticker: "tpro.it",  finnhub_ticker: "TPRO.MI",  index_weight: 0.0013 },
+  { symbol: "BZU.MI",   name: "Buzzi SpA",                    country: "Italy", sector: "Materials",              stooq_ticker: "bzu.it",   finnhub_ticker: "BZU.MI",   index_weight: 0.0011 },
+  { symbol: "A2A.MI",   name: "A2A SpA",                      country: "Italy", sector: "Utilities",              stooq_ticker: "a2a.it",   finnhub_ticker: "A2A.MI",   index_weight: 0.0010 },
+  { symbol: "CPR.MI",   name: "Davide Campari-Milano NV",     country: "Italy", sector: "Consumer Staples",       stooq_ticker: "cpr.it",   finnhub_ticker: "CPR.MI",   index_weight: 0.0010 },
+  { symbol: "SPM.MI",   name: "Saipem SpA",                   country: "Italy", sector: "Energy",                 stooq_ticker: "spm.it",   finnhub_ticker: "SPM.MI",   index_weight: 0.0010 },
+  { symbol: "BPSO.MI",  name: "Banca Popolare di Sondrio",    country: "Italy", sector: "Financials",             stooq_ticker: "bpso.it",  finnhub_ticker: "BPSO.MI",  index_weight: 0.0010 },
+  { symbol: "PIRC.MI",  name: "Pirelli & C SpA",              country: "Italy", sector: "Consumer Discretionary", stooq_ticker: "pirc.it",  finnhub_ticker: "PIRC.MI",  index_weight: 0.0009 },
+  { symbol: "LTMC.MI",  name: "Lottomatica Group SpA",        country: "Italy", sector: "Consumer Discretionary", stooq_ticker: "ltmc.it",  finnhub_ticker: "LTMC.MI",  index_weight: 0.0008 },
+  { symbol: "INW.MI",   name: "INWIT SpA",                    country: "Italy", sector: "Communication Services", stooq_ticker: "inw.it",   finnhub_ticker: "INW.MI",   index_weight: 0.0008 },
+  { symbol: "BGN.MI",   name: "Banca Generali SpA",           country: "Italy", sector: "Financials",             stooq_ticker: "bgn.it",   finnhub_ticker: "BGN.MI",   index_weight: 0.0008 },
+  { symbol: "HER.MI",   name: "Hera SpA",                     country: "Italy", sector: "Utilities",              stooq_ticker: "her.it",   finnhub_ticker: "HER.MI",   index_weight: 0.0008 },
+  { symbol: "IVG.MI",   name: "Iveco Group NV",               country: "Italy", sector: "Industrials",            stooq_ticker: "ivg.it",   finnhub_ticker: "IVG.MI",   index_weight: 0.0007 },
+  { symbol: "BC.MI",    name: "Brunello Cucinelli SpA",       country: "Italy", sector: "Consumer Discretionary", stooq_ticker: "bc.it",    finnhub_ticker: "BC.MI",    index_weight: 0.0007 },
+  { symbol: "CE.MI",    name: "Credito Emiliano SpA",         country: "Italy", sector: "Financials",             stooq_ticker: "ce.it",    finnhub_ticker: "CE.MI",    index_weight: 0.0007 },
+  { symbol: "ACE.MI",   name: "ACEA SpA",                     country: "Italy", sector: "Utilities",              stooq_ticker: "ace.it",   finnhub_ticker: "ACE.MI",   index_weight: 0.0006 },
+  { symbol: "AZM.MI",   name: "Azimut Holding SpA",           country: "Italy", sector: "Financials",             stooq_ticker: "azm.it",   finnhub_ticker: "AZM.MI",   index_weight: 0.0006 },
+  { symbol: "FCT.MI",   name: "Fincantieri SpA",              country: "Italy", sector: "Industrials",            stooq_ticker: "fct.it",   finnhub_ticker: "FCT.MI",   index_weight: 0.0006 },
+  { symbol: "DLG.MI",   name: "De Longhi SpA",                country: "Italy", sector: "Consumer Discretionary", stooq_ticker: "dlg.it",   finnhub_ticker: "DLG.MI",   index_weight: 0.0006 },
+  { symbol: "SOL.MI",   name: "SOL SpA",                      country: "Italy", sector: "Materials",              stooq_ticker: "sol.it",   finnhub_ticker: "SOL.MI",   index_weight: 0.0006 },
+  { symbol: "DAN.MI",   name: "Danieli & C Officine Meccaniche SpA", country: "Italy", sector: "Industrials",     stooq_ticker: "dan.it",   finnhub_ticker: "DAN.MI",   index_weight: 0.0006 },
+  { symbol: "MAIRE.MI", name: "Maire SpA",                    country: "Italy", sector: "Energy",                 stooq_ticker: "maire.it", finnhub_ticker: "MAIRE.MI", index_weight: 0.0006 },
+  { symbol: "NEXI.MI",  name: "Nexi SpA",                     country: "Italy", sector: "Information Technology", stooq_ticker: "nexi.it",  finnhub_ticker: "NEXI.MI",  index_weight: 0.0005 },
+  { symbol: "IP.MI",    name: "Interpump Group SpA",          country: "Italy", sector: "Industrials",            stooq_ticker: "ip.it",    finnhub_ticker: "IP.MI",    index_weight: 0.0005 },
+  { symbol: "TGYM.MI",  name: "Technogym SpA",                country: "Italy", sector: "Consumer Discretionary", stooq_ticker: "tgym.it",  finnhub_ticker: "TGYM.MI",  index_weight: 0.0005 },
+  { symbol: "IRE.MI",   name: "Iren SpA",                     country: "Italy", sector: "Utilities",              stooq_ticker: "ire.it",   finnhub_ticker: "IRE.MI",   index_weight: 0.0004 },
+  { symbol: "ERG.MI",   name: "ERG SpA",                      country: "Italy", sector: "Utilities",              stooq_ticker: "erg.it",   finnhub_ticker: "ERG.MI",   index_weight: 0.0004 },
+  { symbol: "DIA.MI",   name: "DiaSorin SpA",                 country: "Italy", sector: "Health Care",            stooq_ticker: "dia.it",   finnhub_ticker: "DIA.MI",   index_weight: 0.0004 },
+  { symbol: "REY.MI",   name: "Reply SpA",                    country: "Italy", sector: "Information Technology", stooq_ticker: "rey.it",   finnhub_ticker: "REY.MI",   index_weight: 0.0004 },
+  { symbol: "ENAV.MI",  name: "ENAV SpA",                     country: "Italy", sector: "Industrials",            stooq_ticker: "enav.it",  finnhub_ticker: "ENAV.MI",  index_weight: 0.0004 },
+  { symbol: "BRE.MI",   name: "Brembo SpA",                   country: "Italy", sector: "Consumer Discretionary", stooq_ticker: "bre.it",   finnhub_ticker: "BRE.MI",   index_weight: 0.0004 },
+  { symbol: "CRL.MI",   name: "Carel Industries SpA",         country: "Italy", sector: "Industrials",            stooq_ticker: "crl.it",   finnhub_ticker: "CRL.MI",   index_weight: 0.0003 },
+  { symbol: "CEM.MI",   name: "Cementir Holding NV",          country: "Italy", sector: "Materials",              stooq_ticker: "cem.it",   finnhub_ticker: "CEM.MI",   index_weight: 0.0003 },
+  { symbol: "WBD.MI",   name: "Webuild SpA",                  country: "Italy", sector: "Industrials",            stooq_ticker: "wbd.it",   finnhub_ticker: "WBD.MI",   index_weight: 0.0003 },
+  { symbol: "ANIM.MI",  name: "Anima Holding SpA",            country: "Italy", sector: "Financials",             stooq_ticker: "anim.it",  finnhub_ticker: "ANIM.MI",  index_weight: 0.0003 },
+
+  // ── SPAIN (additional) ───────────────────────────────────────────────────────
+  { symbol: "MRL.MC",   name: "Merlin Properties Socimi SA",  country: "Spain", sector: "Real Estate",            stooq_ticker: "mrl.es",   finnhub_ticker: "MRL.MC",   index_weight: 0.0011 },
+  { symbol: "ANE.MC",   name: "Acciona Energías Renovables SA", country: "Spain", sector: "Utilities",            stooq_ticker: "ane.es",   finnhub_ticker: "ANE.MC",   index_weight: 0.0010 },
+  { symbol: "UNI.MC",   name: "Unicaja Banco SA",             country: "Spain", sector: "Financials",             stooq_ticker: "uni.es",   finnhub_ticker: "UNI.MC",   index_weight: 0.0009 },
+  { symbol: "GCO.MC",   name: "Grupo Catalana Occidente SA",  country: "Spain", sector: "Financials",             stooq_ticker: "gco.es",   finnhub_ticker: "GCO.MC",   index_weight: 0.0008 },
+  { symbol: "ALB.MC",   name: "Corporación Financiera Alba SA", country: "Spain", sector: "Financials",           stooq_ticker: "alb.es",   finnhub_ticker: "ALB.MC",   index_weight: 0.0007 },
+  { symbol: "FCC.MC",   name: "Fomento de Construcciones y Contratas SA", country: "Spain", sector: "Industrials", stooq_ticker: "fcc.es",  finnhub_ticker: "FCC.MC",   index_weight: 0.0007 },
+  { symbol: "LOG.MC",   name: "Logista SA",                   country: "Spain", sector: "Industrials",            stooq_ticker: "log.es",   finnhub_ticker: "LOG.MC",   index_weight: 0.0006 },
+  { symbol: "ROVI.MC",  name: "Laboratorios Farmaceuticos Rovi SA", country: "Spain", sector: "Health Care",      stooq_ticker: "rovi.es",  finnhub_ticker: "ROVI.MC",  index_weight: 0.0006 },
+  { symbol: "FDR.MC",   name: "Fluidra SA",                   country: "Spain", sector: "Industrials",            stooq_ticker: "fdr.es",   finnhub_ticker: "FDR.MC",   index_weight: 0.0005 },
+  { symbol: "SCYR.MC",  name: "Sacyr SA",                     country: "Spain", sector: "Industrials",            stooq_ticker: "scyr.es",  finnhub_ticker: "SCYR.MC",  index_weight: 0.0005 },
+  { symbol: "CIE.MC",   name: "CIE Automotive SA",            country: "Spain", sector: "Consumer Discretionary", stooq_ticker: "cie.es",   finnhub_ticker: "CIE.MC",   index_weight: 0.0005 },
+  { symbol: "GRE.MC",   name: "Grenergy Renovables SA",       country: "Spain", sector: "Utilities",              stooq_ticker: "gre.es",   finnhub_ticker: "GRE.MC",   index_weight: 0.0005 },
+  { symbol: "ACX.MC",   name: "Acerinox SA",                  country: "Spain", sector: "Materials",              stooq_ticker: "acx.es",   finnhub_ticker: "ACX.MC",   index_weight: 0.0004 },
+  { symbol: "COL.MC",   name: "Inmobiliaria Colonial Socimi SA", country: "Spain", sector: "Real Estate",         stooq_ticker: "col.es",   finnhub_ticker: "COL.MC",   index_weight: 0.0004 },
+  { symbol: "SLR.MC",   name: "Solaria Energía y Medio Ambiente SA", country: "Spain", sector: "Utilities",       stooq_ticker: "slr.es",   finnhub_ticker: "SLR.MC",   index_weight: 0.0004 },
+  { symbol: "EBRO.MC",  name: "Ebro Foods SA",                country: "Spain", sector: "Consumer Staples",       stooq_ticker: "ebro.es",  finnhub_ticker: "EBRO.MC",  index_weight: 0.0004 },
+  { symbol: "VID.MC",   name: "Vidrala SA",                   country: "Spain", sector: "Materials",              stooq_ticker: "vid.es",   finnhub_ticker: "VID.MC",   index_weight: 0.0004 },
+  { symbol: "ENO.MC",   name: "Elecnor SA",                   country: "Spain", sector: "Utilities",              stooq_ticker: "eno.es",   finnhub_ticker: "ENO.MC",   index_weight: 0.0004 },
+  { symbol: "VIS.MC",   name: "Viscofan SA",                  country: "Spain", sector: "Consumer Staples",       stooq_ticker: "vis.es",   finnhub_ticker: "VIS.MC",   index_weight: 0.0004 },
+  { symbol: "ALM.MC",   name: "Almirall SA",                  country: "Spain", sector: "Health Care",            stooq_ticker: "alm.es",   finnhub_ticker: "ALM.MC",   index_weight: 0.0004 },
+  { symbol: "TRE.MC",   name: "Técnicas Reunidas SA",         country: "Spain", sector: "Energy",                 stooq_ticker: "tre.es",   finnhub_ticker: "TRE.MC",   index_weight: 0.0003 },
+  { symbol: "DIA.MC",   name: "Distribuidora Internacional de Alimentación SA", country: "Spain", sector: "Consumer Staples", stooq_ticker: "dia.es", finnhub_ticker: "DIA.MC", index_weight: 0.0003 },
+  { symbol: "MEL.MC",   name: "Meliá Hotels International SA", country: "Spain", sector: "Consumer Discretionary", stooq_ticker: "mel.es",  finnhub_ticker: "MEL.MC",   index_weight: 0.0003 },
+  { symbol: "CAF.MC",   name: "Construcciones y Auxiliar de Ferrocarriles SA", country: "Spain", sector: "Industrials", stooq_ticker: "caf.es", finnhub_ticker: "CAF.MC",  index_weight: 0.0003 },
+
+  // ── PORTUGAL (additional) ────────────────────────────────────────────────────
+  { symbol: "EDPR.LS",  name: "EDP Renováveis SA",            country: "Portugal", sector: "Utilities",           stooq_ticker: "edpr.pt",  finnhub_ticker: "EDPR.LS",  index_weight: 0.0016 },
+
+  // ── POLAND ───────────────────────────────────────────────────────────────────
+  { symbol: "PKN.WA",   name: "PKN Orlen SA",                 country: "Poland", sector: "Energy",                stooq_ticker: "pkn.pl",   finnhub_ticker: "PKN.WA",   index_weight: 0.0040 },
+  { symbol: "PKO.WA",   name: "PKO Bank Polski SA",           country: "Poland", sector: "Financials",            stooq_ticker: "pko.pl",   finnhub_ticker: "PKO.WA",   index_weight: 0.0029 },
+  { symbol: "SPL.WA",   name: "Santander Bank Polska SA",     country: "Poland", sector: "Financials",            stooq_ticker: "spl.pl",   finnhub_ticker: "SPL.WA",   index_weight: 0.0016 },
+  { symbol: "PEO.WA",   name: "Bank Pekao SA",                country: "Poland", sector: "Financials",            stooq_ticker: "peo.pl",   finnhub_ticker: "PEO.WA",   index_weight: 0.0015 },
+  { symbol: "PZU.WA",   name: "Powszechny Zakład Ubezpieczeń SA", country: "Poland", sector: "Financials",        stooq_ticker: "pzu.pl",   finnhub_ticker: "PZU.WA",   index_weight: 0.0015 },
+  { symbol: "KGH.WA",   name: "KGHM Polska Miedź SA",         country: "Poland", sector: "Materials",             stooq_ticker: "kgh.pl",   finnhub_ticker: "KGH.WA",   index_weight: 0.0014 },
+  { symbol: "ING.WA",   name: "ING Bank Śląski SA",           country: "Poland", sector: "Financials",            stooq_ticker: "ing.pl",   finnhub_ticker: "ING.WA",   index_weight: 0.0014 },
+  { symbol: "MBK.WA",   name: "mBank SA",                     country: "Poland", sector: "Financials",            stooq_ticker: "mbk.pl",   finnhub_ticker: "MBK.WA",   index_weight: 0.0012 },
+  { symbol: "LPP.WA",   name: "LPP SA",                       country: "Poland", sector: "Consumer Discretionary", stooq_ticker: "lpp.pl",  finnhub_ticker: "LPP.WA",   index_weight: 0.0011 },
+  { symbol: "DNP.WA",   name: "Dino Polska SA",               country: "Poland", sector: "Consumer Staples",      stooq_ticker: "dnp.pl",   finnhub_ticker: "DNP.WA",   index_weight: 0.0011 },
+
+  // ── DENMARK additional ───────────────────────────────────────────────────────
+  { symbol: "ALK-B.CO",    name: "ALK-Abelló A/S",                 country: "Denmark", sector: "Health Care",            stooq_ticker: "alk-b.dk",    finnhub_ticker: "ALK-B.CO",    index_weight: 0.0007 },
+  { symbol: "JYSK.CO",     name: "Jyske Bank A/S",                 country: "Denmark", sector: "Financials",             stooq_ticker: "jysk.dk",     finnhub_ticker: "JYSK.CO",     index_weight: 0.0008 },
+  { symbol: "KBHL.CO",     name: "Københavns Lufthavne A/S",       country: "Denmark", sector: "Industrials",            stooq_ticker: "kbhl.dk",     finnhub_ticker: "KBHL.CO",     index_weight: 0.0008 },
+  { symbol: "NKT.CO",      name: "NKT A/S",                        country: "Denmark", sector: "Industrials",            stooq_ticker: "nkt.dk",      finnhub_ticker: "NKT.CO",      index_weight: 0.0007 },
+  { symbol: "ALSYDB.CO",   name: "Sydbank A/S",                    country: "Denmark", sector: "Financials",             stooq_ticker: "alsydb.dk",   finnhub_ticker: "ALSYDB.CO",   index_weight: 0.0007 },
+  { symbol: "DEMANT.CO",   name: "Demant A/S",                     country: "Denmark", sector: "Health Care",            stooq_ticker: "demant.dk",   finnhub_ticker: "DEMANT.CO",   index_weight: 0.0006 },
+  { symbol: "HLUN-B.CO",   name: "H. Lundbeck A/S",                country: "Denmark", sector: "Health Care",            stooq_ticker: "hlun-b.dk",   finnhub_ticker: "HLUN-B.CO",   index_weight: 0.0006 },
+  { symbol: "ROCK-B.CO",   name: "Rockwool International A/S",     country: "Denmark", sector: "Industrials",            stooq_ticker: "rock-b.dk",   finnhub_ticker: "ROCK-B.CO",   index_weight: 0.0006 },
+  { symbol: "ISS.CO",      name: "ISS A/S",                        country: "Denmark", sector: "Industrials",            stooq_ticker: "iss.dk",      finnhub_ticker: "ISS.CO",      index_weight: 0.0006 },
+  { symbol: "RILBA.CO",    name: "Ringkjøbing Landbobank A/S",     country: "Denmark", sector: "Financials",             stooq_ticker: "rilba.dk",    finnhub_ticker: "RILBA.CO",    index_weight: 0.0006 },
+
+  // ── SWEDEN additional ────────────────────────────────────────────────────────
+  { symbol: "EVO.ST",      name: "Evolution AB",                   country: "Sweden",  sector: "Consumer Discretionary", stooq_ticker: "evo.se",      finnhub_ticker: "EVO.ST",      index_weight: 0.0012 },
+  { symbol: "SECU-B.ST",   name: "Securitas AB",                   country: "Sweden",  sector: "Industrials",            stooq_ticker: "secu-b.se",   finnhub_ticker: "SECU-B.ST",   index_weight: 0.0010 },
+  { symbol: "ADDT-B.ST",   name: "Addtech AB",                     country: "Sweden",  sector: "Industrials",            stooq_ticker: "addt-b.se",   finnhub_ticker: "ADDT-B.ST",   index_weight: 0.0009 },
+  { symbol: "SAGA-B.ST",   name: "Sagax AB",                       country: "Sweden",  sector: "Real Estate",            stooq_ticker: "saga-b.se",   finnhub_ticker: "SAGA-B.ST",   index_weight: 0.0008 },
+  { symbol: "SCA-B.ST",    name: "Svenska Cellulosa AB SCA",       country: "Sweden",  sector: "Materials",              stooq_ticker: "sca-b.se",    finnhub_ticker: "SCA-B.ST",    index_weight: 0.0008 },
+  { symbol: "TREL-B.ST",   name: "Trelleborg AB",                  country: "Sweden",  sector: "Industrials",            stooq_ticker: "trel-b.se",   finnhub_ticker: "TREL-B.ST",   index_weight: 0.0008 },
+  { symbol: "INDT.ST",     name: "Indutrade AB",                   country: "Sweden",  sector: "Industrials",            stooq_ticker: "indt.se",     finnhub_ticker: "INDT.ST",     index_weight: 0.0008 },
+  { symbol: "NIBE-B.ST",   name: "NIBE Industrier AB",             country: "Sweden",  sector: "Industrials",            stooq_ticker: "nibe-b.se",   finnhub_ticker: "NIBE-B.ST",   index_weight: 0.0008 },
+  { symbol: "SAVE.ST",     name: "Nordnet AB",                     country: "Sweden",  sector: "Financials",             stooq_ticker: "save.se",     finnhub_ticker: "SAVE.ST",     index_weight: 0.0008 },
+  { symbol: "SSAB-B.ST",   name: "SSAB AB",                        country: "Sweden",  sector: "Materials",              stooq_ticker: "ssab-b.se",   finnhub_ticker: "SSAB-B.ST",   index_weight: 0.0008 },
+  { symbol: "AXFO.ST",     name: "Axfood AB",                      country: "Sweden",  sector: "Consumer Staples",       stooq_ticker: "axfo.se",     finnhub_ticker: "AXFO.ST",     index_weight: 0.0007 },
+  { symbol: "BEIJ-B.ST",   name: "Beijer Ref AB",                  country: "Sweden",  sector: "Industrials",            stooq_ticker: "beij-b.se",   finnhub_ticker: "BEIJ-B.ST",   index_weight: 0.0007 },
+  { symbol: "BALD-B.ST",   name: "Fastighets AB Balder",           country: "Sweden",  sector: "Real Estate",            stooq_ticker: "bald-b.se",   finnhub_ticker: "BALD-B.ST",   index_weight: 0.0007 },
+  { symbol: "VOLCAR-B.ST", name: "Volvo Car AB",                   country: "Sweden",  sector: "Consumer Discretionary", stooq_ticker: "volcar-b.se", finnhub_ticker: "VOLCAR-B.ST", index_weight: 0.0006 },
+  { symbol: "AAK.ST",      name: "AAK AB",                         country: "Sweden",  sector: "Consumer Staples",       stooq_ticker: "aak.se",      finnhub_ticker: "AAK.ST",      index_weight: 0.0006 },
+  { symbol: "AZA.ST",      name: "Avanza Bank Holding AB",         country: "Sweden",  sector: "Financials",             stooq_ticker: "aza.se",      finnhub_ticker: "AZA.ST",      index_weight: 0.0006 },
+  { symbol: "HOLM-B.ST",   name: "Holmen AB",                      country: "Sweden",  sector: "Materials",              stooq_ticker: "holm-b.se",   finnhub_ticker: "HOLM-B.ST",   index_weight: 0.0005 },
+
+  // ── FINLAND additional ───────────────────────────────────────────────────────
+  { symbol: "KCR.HE",      name: "Konecranes Oyj",                 country: "Finland", sector: "Industrials",            stooq_ticker: "kcr.fi",      finnhub_ticker: "KCR.HE",      index_weight: 0.0025 },
+  { symbol: "ORNAV.HE",    name: "Orion Corporation Oyj",          country: "Finland", sector: "Health Care",            stooq_ticker: "ornav.fi",    finnhub_ticker: "ORNAV.HE",    index_weight: 0.0011 },
+  { symbol: "STEAV.HE",    name: "Stora Enso Oyj",                 country: "Finland", sector: "Materials",              stooq_ticker: "steav.fi",    finnhub_ticker: "STEAV.HE",    index_weight: 0.0009 },
+  { symbol: "KESKOA.HE",   name: "Kesko Oyj",                      country: "Finland", sector: "Consumer Staples",       stooq_ticker: "keskoa.fi",   finnhub_ticker: "KESKOA.HE",   index_weight: 0.0009 },
+
+  // ── BELGIUM additional ───────────────────────────────────────────────────────
+  { symbol: "TUB.BR",      name: "Financière de Tubize SA",        country: "Belgium", sector: "Financials",             stooq_ticker: "tub.be",      finnhub_ticker: "TUB.BR",      index_weight: 0.0011 },
+  { symbol: "ACKB.BR",     name: "Ackermans & Van Haaren NV",      country: "Belgium", sector: "Financials",             stooq_ticker: "ackb.be",     finnhub_ticker: "ACKB.BR",     index_weight: 0.0010 },
+  { symbol: "DIE.BR",      name: "D'Ieteren Group NV",             country: "Belgium", sector: "Consumer Discretionary", stooq_ticker: "die.be",      finnhub_ticker: "DIE.BR",      index_weight: 0.0010 },
+  { symbol: "SOF.BR",      name: "Sofina SA",                      country: "Belgium", sector: "Financials",             stooq_ticker: "sof.be",      finnhub_ticker: "SOF.BR",      index_weight: 0.0009 },
+  { symbol: "LOTB.BR",     name: "Lotus Bakeries NV",              country: "Belgium", sector: "Consumer Staples",       stooq_ticker: "lotb.be",     finnhub_ticker: "LOTB.BR",     index_weight: 0.0009 },
+  { symbol: "AED.BR",      name: "Aedifica NV",                    country: "Belgium", sector: "Real Estate",            stooq_ticker: "aed.be",      finnhub_ticker: "AED.BR",      index_weight: 0.0007 },
+  { symbol: "KBCA.BR",     name: "KBC Ancora NV",                  country: "Belgium", sector: "Financials",             stooq_ticker: "kbca.be",     finnhub_ticker: "KBCA.BR",     index_weight: 0.0006 },
+  { symbol: "WDP.BR",      name: "Warehouses De Pauw SCA",         country: "Belgium", sector: "Real Estate",            stooq_ticker: "wdp.be",      finnhub_ticker: "WDP.BR",      index_weight: 0.0006 },
+  { symbol: "SYENS.BR",    name: "Syensqo SA",                     country: "Belgium", sector: "Materials",              stooq_ticker: "syens.be",    finnhub_ticker: "SYENS.BR",    index_weight: 0.0006 },
+
+  // ── AUSTRIA additional ───────────────────────────────────────────────────────
+  { symbol: "STR.VI",      name: "Strabag SE",                     country: "Austria", sector: "Industrials",            stooq_ticker: "str.at",      finnhub_ticker: "STR.VI",      index_weight: 0.0011 },
+  { symbol: "VIG.VI",      name: "Vienna Insurance Group AG",      country: "Austria", sector: "Financials",             stooq_ticker: "vig.at",      finnhub_ticker: "VIG.VI",      index_weight: 0.0009 },
+  { symbol: "VOE.VI",      name: "Voestalpine AG",                 country: "Austria", sector: "Materials",              stooq_ticker: "voe.at",      finnhub_ticker: "VOE.VI",      index_weight: 0.0008 },
+  { symbol: "EVN.VI",      name: "EVN AG",                         country: "Austria", sector: "Utilities",              stooq_ticker: "evn.at",      finnhub_ticker: "EVN.VI",      index_weight: 0.0006 },
+
+  // ── GERMANY additional ───────────────────────────────────────────────────────
+  { symbol: "EBK.XETRA",  name: "EnBW Energie Baden-Württemberg AG", country: "Germany", sector: "Utilities",           stooq_ticker: "ebk.de",      finnhub_ticker: "EBK.XETRA",   index_weight: 0.0026 },
+
+  // ── FRANCE additional ────────────────────────────────────────────────────────
+  { symbol: "IPN.PA",      name: "Ipsen SA",                       country: "France",  sector: "Health Care",            stooq_ticker: "ipn.fr",      finnhub_ticker: "IPN.PA",      index_weight: 0.0015 },
+  { symbol: "AYV.PA",      name: "Ayvens SA",                      country: "France",  sector: "Financials",             stooq_ticker: "ayv.fr",      finnhub_ticker: "AYV.PA",      index_weight: 0.0009 },
+  { symbol: "GTT.PA",      name: "Gaztransport & Technigaz SA",    country: "France",  sector: "Energy",                 stooq_ticker: "gtt.fr",      finnhub_ticker: "GTT.PA",      index_weight: 0.0009 },
+  { symbol: "ODET.PA",     name: "Compagnie de l'Odet SA",         country: "France",  sector: "Financials",             stooq_ticker: "odet.fr",     finnhub_ticker: "ODET.PA",     index_weight: 0.0006 },
+
+  // ── ITALY additional ─────────────────────────────────────────────────────────
+
+  // ── SPAIN additional ─────────────────────────────────────────────────────────
+
+  // ── PORTUGAL additional ──────────────────────────────────────────────────────
+  { symbol: "JMT.LS",      name: "Jerónimo Martins SGPS SA",       country: "Portugal", sector: "Consumer Staples",      stooq_ticker: "jmt.pt",      finnhub_ticker: "JMT.LS",      index_weight: 0.0015 },
+  { symbol: "BCP.LS",      name: "Banco Comercial Português SA",   country: "Portugal", sector: "Financials",            stooq_ticker: "bcp.pt",      finnhub_ticker: "BCP.LS",      index_weight: 0.0014 },
+
+  // ── NETHERLANDS additional ───────────────────────────────────────────────────
+  { symbol: "CTPNV.AS",    name: "CTP NV",                         country: "Netherlands", sector: "Real Estate",        stooq_ticker: "ctpnv.nl",    finnhub_ticker: "CTPNV.AS",    index_weight: 0.0008 },
+  { symbol: "VPK.AS",      name: "Vopak NV",                       country: "Netherlands", sector: "Industrials",        stooq_ticker: "vpk.nl",      finnhub_ticker: "VPK.AS",      index_weight: 0.0006 },
+  { symbol: "IMCD.AS",     name: "IMCD NV",                        country: "Netherlands", sector: "Materials",          stooq_ticker: "imcd.nl",     finnhub_ticker: "IMCD.AS",     index_weight: 0.0006 },
+
+  // ── POLAND additional ────────────────────────────────────────────────────────
+  { symbol: "ALE.WA",      name: "Allegro.eu SA",                  country: "Poland",  sector: "Consumer Discretionary", stooq_ticker: "ale.pl",      finnhub_ticker: "ALE.WA",      index_weight: 0.0007 },
+  { symbol: "CDR.WA",      name: "CD Projekt SA",                  country: "Poland",  sector: "Communication Services", stooq_ticker: "cdr.pl",      finnhub_ticker: "CDR.WA",      index_weight: 0.0006 },
+  { symbol: "ZAB.WA",      name: "Żabka Group SA",                 country: "Poland",  sector: "Consumer Staples",       stooq_ticker: "zab.pl",      finnhub_ticker: "ZAB.WA",      index_weight: 0.0006 },
+  { symbol: "PGE.WA",      name: "PGE Polska Grupa Energetyczna SA", country: "Poland", sector: "Utilities",             stooq_ticker: "pge.pl",      finnhub_ticker: "PGE.WA",      index_weight: 0.0006 },
+
+  // ── CZECH REPUBLIC ───────────────────────────────────────────────────────────
+  { symbol: "CEZ.PR",      name: "ČEZ AS",                         country: "Czech Republic", sector: "Utilities",       stooq_ticker: "cez.cz",      finnhub_ticker: "CEZ.PR",      index_weight: 0.0030 },
+  { symbol: "CSG.AS",      name: "CSG NV (Czechoslovak Group)",    country: "Czech Republic", sector: "Industrials",     stooq_ticker: "csg.nl",      finnhub_ticker: "CSG.AS",      index_weight: 0.0028 },
+  { symbol: "KOMB.PR",     name: "Komerční banka AS",              country: "Czech Republic", sector: "Financials",      stooq_ticker: "komb.cz",     finnhub_ticker: "KOMB.PR",     index_weight: 0.0010 },
+
+  // ── HUNGARY ──────────────────────────────────────────────────────────────────
+  { symbol: "OTP.BD",      name: "OTP Bank Nyrt",                  country: "Hungary", sector: "Financials",             stooq_ticker: "otp.hu",      finnhub_ticker: "OTP.BD",      index_weight: 0.0027 },
+  { symbol: "MOL.BD",      name: "MOL Hungarian Oil and Gas Nyrt", country: "Hungary", sector: "Energy",                 stooq_ticker: "mol.hu",      finnhub_ticker: "MOL.BD",      index_weight: 0.0009 },
+  { symbol: "RIG2.F",      name: "Richter Gedeon Nyrt",            country: "Hungary", sector: "Health Care",            stooq_ticker: "rig2.de",     finnhub_ticker: "RIG2.F",      index_weight: 0.0006 },
+
+  // ── GREECE ───────────────────────────────────────────────────────────────────
+  { symbol: "EUROB.AT",    name: "Eurobank Ergasias Services and Holdings SA", country: "Greece", sector: "Financials",  stooq_ticker: "eurob.gr",    finnhub_ticker: "EUROB.AT",    index_weight: 0.0014 },
+  { symbol: "ETE.AT",      name: "National Bank of Greece SA",     country: "Greece",  sector: "Financials",             stooq_ticker: "ete.gr",      finnhub_ticker: "ETE.AT",      index_weight: 0.0013 },
+  { symbol: "TPEIR.AT",    name: "Piraeus Financial Holdings SA",  country: "Greece",  sector: "Financials",             stooq_ticker: "tpeir.gr",    finnhub_ticker: "TPEIR.AT",    index_weight: 0.0010 },
+  { symbol: "ALPHA.AT",    name: "Alpha Services and Holdings SA", country: "Greece",  sector: "Financials",             stooq_ticker: "alpha.gr",    finnhub_ticker: "ALPHA.AT",    index_weight: 0.0008 },
+  { symbol: "MYTIL.AT",    name: "Metlen Energy & Metals SA",      country: "Greece",  sector: "Materials",              stooq_ticker: "mytil.gr",    finnhub_ticker: "MYTIL.AT",    index_weight: 0.0009 },
+  { symbol: "PPC.AT",      name: "Public Power Corporation SA",    country: "Greece",  sector: "Utilities",              stooq_ticker: "ppc.gr",      finnhub_ticker: "PPC.AT",      index_weight: 0.0007 },
+  { symbol: "OTEAW.AT",    name: "OTE SA (Hellenic Telecommunications)", country: "Greece", sector: "Communication Services", stooq_ticker: "ote.gr", finnhub_ticker: "OTEAW.AT",    index_weight: 0.0008 },
+  { symbol: "OPAP.AT",     name: "OPAP SA",                        country: "Greece",  sector: "Consumer Discretionary", stooq_ticker: "opap.gr",     finnhub_ticker: "OPAP.AT",     index_weight: 0.0006 },
+
+  // ── ROMANIA ──────────────────────────────────────────────────────────────────
+  { symbol: "H2O.RO",      name: "SPEEH Hidroelectrica SA",        country: "Romania", sector: "Utilities",              stooq_ticker: "h2o.ro",      finnhub_ticker: "H2O.RO",      index_weight: 0.0015 },
+  { symbol: "SNG.RO",      name: "Romgaz SA",                      country: "Romania", sector: "Energy",                 stooq_ticker: "sng.ro",      finnhub_ticker: "SNG.RO",      index_weight: 0.0010 },
+  { symbol: "TLV.RO",      name: "Banca Transilvania SA",          country: "Romania", sector: "Financials",             stooq_ticker: "tlv.ro",      finnhub_ticker: "TLV.RO",      index_weight: 0.0009 },
+
+  // ── LUXEMBOURG ───────────────────────────────────────────────────────────────
+  { symbol: "INPST.AS",    name: "InPost SA",                      country: "Luxembourg", sector: "Industrials",         stooq_ticker: "inpst.nl",    finnhub_ticker: "INPST.AS",    index_weight: 0.0009 },
+
+  // ── NETHERLANDS additional ────────────────────────────────────────────────
+  { symbol: "AALB.AS",     name: "Aalberts Industries NV",         country: "Netherlands", sector: "Industrials",        stooq_ticker: "aalb.nl",     finnhub_ticker: "AALB.AS",     index_weight: 0.0008 },
+
+  // ── FRANCE additional ────────────────────────────────────────────────────
+  { symbol: "COVH.PA",     name: "Covivio Hotels SA",              country: "France",      sector: "Real Estate",        stooq_ticker: "covh.fr",     finnhub_ticker: "COVH.PA",     index_weight: 0.0004 },
+
+  // ── IRELAND additional ───────────────────────────────────────────────────
+  { symbol: "GL9.IR",      name: "Glanbia PLC",                    country: "Ireland",     sector: "Consumer Staples",   stooq_ticker: "gl9.ie",      finnhub_ticker: "GL9.IR",      index_weight: 0.0005 },
+
+  // ── PORTUGAL additional ──────────────────────────────────────────────────
+  { symbol: "SON.LS",      name: "Sonae SGPS SA",                  country: "Portugal",    sector: "Consumer Discretionary", stooq_ticker: "son.pt",  finnhub_ticker: "SON.LS",      index_weight: 0.0004 },
+
+  // ── BELGIUM additional ───────────────────────────────────────────────────
+  { symbol: "DEME.BR",     name: "DEME Group NV",                  country: "Belgium",     sector: "Industrials",        stooq_ticker: "deme.be",     finnhub_ticker: "DEME.BR",     index_weight: 0.0007 },
+  { symbol: "COLR.BR",     name: "Etablissements Franz Colruyt NV", country: "Belgium",    sector: "Consumer Staples",   stooq_ticker: "colr.be",     finnhub_ticker: "COLR.BR",     index_weight: 0.0006 },
+  { symbol: "CENER.BR",    name: "Cenergy Holdings SA",            country: "Belgium",     sector: "Industrials",        stooq_ticker: "cener.be",    finnhub_ticker: "CENER.BR",    index_weight: 0.0004 },
+  { symbol: "COFB.BR",     name: "Cofinimmo SA",                   country: "Belgium",     sector: "Real Estate",        stooq_ticker: "cofb.be",     finnhub_ticker: "COFB.BR",     index_weight: 0.0004 },
+  { symbol: "BREB.BR",     name: "Brederode SA",                   country: "Belgium",     sector: "Financials",         stooq_ticker: "breb.be",     finnhub_ticker: "BREB.BR",     index_weight: 0.0003 },
+  { symbol: "TITC.BR",     name: "Titan Cement International SA",  country: "Belgium",     sector: "Materials",          stooq_ticker: "titc.be",     finnhub_ticker: "TITC.BR",     index_weight: 0.0004 },
+  { symbol: "VIO.BR",      name: "Viohalco SA",                    country: "Belgium",     sector: "Materials",          stooq_ticker: "vio.be",      finnhub_ticker: "VIO.BR",      index_weight: 0.0003 },
+
+  // ── FINLAND additional ───────────────────────────────────────────────────
+  { symbol: "VALMT.HE",    name: "Valmet Oyj",                     country: "Finland",     sector: "Industrials",        stooq_ticker: "valmt.fi",    finnhub_ticker: "VALMT.HE",    index_weight: 0.0006 },
+  { symbol: "MANTA.HE",    name: "Mandatum Oyj",                   country: "Finland",     sector: "Financials",         stooq_ticker: "manta.fi",    finnhub_ticker: "MANTA.HE",    index_weight: 0.0004 },
+
+  // ── AUSTRIA additional ───────────────────────────────────────────────────
+  { symbol: "UNIQA.VI",    name: "UNIQA Insurance Group AG",       country: "Austria",     sector: "Financials",         stooq_ticker: "uniqa.at",    finnhub_ticker: "UNIQA.VI",    index_weight: 0.0005 },
+  { symbol: "FLU.VI",      name: "Flughafen Wien AG",              country: "Austria",     sector: "Industrials",        stooq_ticker: "flu.at",      finnhub_ticker: "FLU.VI",      index_weight: 0.0004 },
+
+  // ── DENMARK additional ───────────────────────────────────────────────────
+  { symbol: "PNDORA.CO",   name: "Pandora A/S",                    country: "Denmark",     sector: "Consumer Discretionary", stooq_ticker: "pndora.dk", finnhub_ticker: "PNDORA.CO",  index_weight: 0.0008 },
+  { symbol: "RBREW.CO",    name: "Royal Unibrew A/S",              country: "Denmark",     sector: "Consumer Staples",   stooq_ticker: "rbrew.dk",    finnhub_ticker: "RBREW.CO",    index_weight: 0.0005 },
+  { symbol: "FLS.CO",      name: "FLSmidth & Co A/S",             country: "Denmark",     sector: "Industrials",        stooq_ticker: "fls.dk",      finnhub_ticker: "FLS.CO",      index_weight: 0.0005 },
+
+  // ── SWEDEN additional ────────────────────────────────────────────────────
+  { symbol: "GETI-B.ST",   name: "Getinge AB",                     country: "Sweden",      sector: "Health Care",        stooq_ticker: "geti-b.se",   finnhub_ticker: "GETI-B.ST",   index_weight: 0.0006 },
+  { symbol: "CAST.ST",     name: "Castellum AB",                   country: "Sweden",      sector: "Real Estate",        stooq_ticker: "cast.se",     finnhub_ticker: "CAST.ST",     index_weight: 0.0005 },
+  { symbol: "SWEC-A.ST",   name: "Sweco AB",                       country: "Sweden",      sector: "Industrials",        stooq_ticker: "swec-a.se",   finnhub_ticker: "SWEC-A.ST",   index_weight: 0.0005 },
+  { symbol: "SECT-B.ST",   name: "Sectra AB",                      country: "Sweden",      sector: "Health Care",        stooq_ticker: "sect-b.se",   finnhub_ticker: "SECT-B.ST",   index_weight: 0.0004 },
+  { symbol: "MYCR.ST",     name: "Mycronic AB",                    country: "Sweden",      sector: "Information Technology", stooq_ticker: "mycr.se", finnhub_ticker: "MYCR.ST",     index_weight: 0.0004 },
+  { symbol: "PNDX-B.ST",   name: "Pandox AB",                      country: "Sweden",      sector: "Real Estate",        stooq_ticker: "pndx-b.se",   finnhub_ticker: "PNDX-B.ST",   index_weight: 0.0003 },
+
+  // ── POLAND additional ────────────────────────────────────────────────────
+  { symbol: "MIL.WA",      name: "Bank Millennium SA",             country: "Poland",      sector: "Financials",         stooq_ticker: "mil.pl",      finnhub_ticker: "MIL.WA",      index_weight: 0.0004 },
+  { symbol: "OPL.WA",      name: "Orange Polska SA",               country: "Poland",      sector: "Communication Services", stooq_ticker: "opl.pl",  finnhub_ticker: "OPL.WA",      index_weight: 0.0004 },
+  { symbol: "BDX.WA",      name: "Budimex SA",                     country: "Poland",      sector: "Industrials",        stooq_ticker: "bdx.pl",      finnhub_ticker: "BDX.WA",      index_weight: 0.0005 },
+  { symbol: "TPE.WA",      name: "Tauron Polska Energia SA",       country: "Poland",      sector: "Utilities",          stooq_ticker: "tpe.pl",      finnhub_ticker: "TPE.WA",      index_weight: 0.0003 },
+  { symbol: "BHW.WA",      name: "Bank Handlowy w Warszawie SA",   country: "Poland",      sector: "Financials",         stooq_ticker: "bhw.pl",      finnhub_ticker: "BHW.WA",      index_weight: 0.0003 },
+  { symbol: "ALR.WA",      name: "Alior Bank SA",                  country: "Poland",      sector: "Financials",         stooq_ticker: "alr.pl",      finnhub_ticker: "ALR.WA",      index_weight: 0.0004 },
+  { symbol: "ACP.WA",      name: "Asseco Poland SA",               country: "Poland",      sector: "Information Technology", stooq_ticker: "acp.pl",  finnhub_ticker: "ACP.WA",      index_weight: 0.0005 },
+
+  // ── CZECH REPUBLIC additional ────────────────────────────────────────────
+  { symbol: "MONET.PR",    name: "MONETA Money Bank AS",           country: "Czech Republic", sector: "Financials",      stooq_ticker: "monet.cz",    finnhub_ticker: "MONET.PR",    index_weight: 0.0003 },
+
+  // ── GREECE additional ────────────────────────────────────────────────────
+  { symbol: "MOH.AT",      name: "Motor Oil Hellas SA",            country: "Greece",      sector: "Energy",             stooq_ticker: "moh.gr",      finnhub_ticker: "MOH.AT",      index_weight: 0.0005 },
+  { symbol: "GEKTERNA.AT", name: "GEK TERNA Holding Real Estate Construction SA", country: "Greece", sector: "Industrials", stooq_ticker: "gekterna.gr", finnhub_ticker: "GEKTERNA.AT", index_weight: 0.0004 },
+  { symbol: "AIA.AT",      name: "Athens International Airport SA", country: "Greece",     sector: "Industrials",        stooq_ticker: "aia.gr",      finnhub_ticker: "AIA.AT",      index_weight: 0.0004 },
 ];
 
-// Total: 23 NL + 46 DE + 47 FR + 70 UK + 21 ES + 22 IT + 10 CH + 10 DK + 9 FI + 25 SE + 6 BE + 5 AT + 5 IE = 299 companies
+// Total: ~590 companies across 19 countries (Netherlands, Germany, France, UK, Spain, Italy,
+// Switzerland, Denmark, Sweden, Finland, Belgium, Austria, Ireland, Portugal, Poland,
+// Czech Republic, Hungary, Greece, Romania, Luxembourg)

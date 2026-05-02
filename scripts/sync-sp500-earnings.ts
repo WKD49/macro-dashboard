@@ -1,6 +1,6 @@
 /**
  * sync-sp500-earnings.ts
- * Fetches earnings dates (Alpha Vantage calendar) and EPS actuals for S&P 500 companies.
+ * Fetches earnings dates (Yahoo Finance) and EPS actuals (Alpha Vantage) for S&P 500 companies.
  * Upserts all 503 companies as a baseline, then enriches the 24 oldest rows with detail.
  *
  * Requires ALPHA_VANTAGE_API_KEY in .env.local (free tier: 25 calls/day).
@@ -13,10 +13,47 @@ import { normaliseSector } from "@/lib/sp500/types";
 import { SP500_LIST } from "@/lib/sp500/sp500-list";
 import {
   fetchCompanyEarnings,
-  fetchEarningsCalendar12Month,
   getApiCallCount,
   resetApiCallCount,
 } from "@/lib/sp500/av-client";
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const YahooFinance = require("yahoo-finance2").default;
+const yf = new YahooFinance({ suppressNotices: ["yahooSurvey", "ripHistorical"] });
+
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+async function fetchEarningsDatesYahoo(symbols: string[]): Promise<Map<string, string>> {
+  const dateMap = new Map<string, string>();
+  const BATCH = 50;
+
+  for (let i = 0; i < symbols.length; i += BATCH) {
+    const batch = symbols.slice(i, i + BATCH);
+    try {
+      const quotes = await yf.quote(batch, {}, { validateResult: false }) as any;
+      const arr: any[] = Array.isArray(quotes) ? quotes : [quotes];
+      for (const q of arr) {
+        if (q?.symbol && q?.earningsTimestamp) {
+          // Yahoo returns seconds for most tickers but ms for some — detect by magnitude
+          const ts: number = q.earningsTimestamp;
+          const d = new Date(ts > 1e10 ? ts : ts * 1000);
+          const yyyy = d.getUTCFullYear();
+          const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+          const dd = String(d.getUTCDate()).padStart(2, "0");
+          dateMap.set(q.symbol, `${yyyy}-${mm}-${dd}`);
+        }
+      }
+    } catch (err) {
+      console.warn(`[sp500-earnings] Yahoo batch ${i}–${i + BATCH} error:`, err instanceof Error ? err.message : err);
+    }
+    if (i + BATCH < symbols.length) await sleep(500);
+  }
+
+  console.log(`[sp500-earnings] Yahoo earnings dates fetched: ${dateMap.size}/${symbols.length}`);
+  return dateMap;
+}
 
 type EarningsCompanyUpsert = {
   symbol: string;
@@ -74,28 +111,10 @@ async function main() {
   try {
     console.log(`[sp500-earnings] Using static S&P 500 list: ${SP500_LIST.length} constituents`);
 
-    // 2) Fetch earnings calendar (1 API call)
-    console.log(`[sp500-earnings] Fetching earnings calendar (12-month horizon)...`);
-    const calRes = await fetchEarningsCalendar12Month();
-    if (calRes.error || !calRes.data) {
-      throw new Error(`Calendar fetch failed: ${calRes.error ?? "no data"}`);
-    }
-
-    const calendar = calRes.data;
-    console.log(`[sp500-earnings] Calendar: ${calendar.length} total entries`);
-
-    const nextReportDate = new Map<string, string>();
-    for (const entry of calendar) {
-      const sym = entry.symbol?.trim();
-      const date = entry.reportDate?.trim();
-      if (!sym || !date) continue;
-      const existing = nextReportDate.get(sym);
-      if (!existing || date < existing) nextReportDate.set(sym, date);
-    }
-
-    const sp500Symbols = new Set(SP500_LIST.map((c) => c.symbol));
-    const inCalendar = Array.from(nextReportDate.keys()).filter((s) => sp500Symbols.has(s));
-    console.log(`[sp500-earnings] ${inCalendar.length} S&P 500 companies in calendar`);
+    // 2) Fetch earnings dates from Yahoo Finance
+    console.log(`[sp500-earnings] Fetching earnings dates from Yahoo Finance...`);
+    const allSymbols = SP500_LIST.map((c) => c.symbol);
+    const nextReportDate = await fetchEarningsDatesYahoo(allSymbols);
 
     // 3) Upsert baseline rows for ALL 503
     const baselineNow = isoNow();

@@ -78,6 +78,13 @@ const HISTORY_SOURCES: Record<string, HistorySource> = {
     fn: ([us10, jp10]) => alignAndCompute(us10, jp10, (a, b) => a - b),
   },
 
+  // 2s10s spread — 10yr minus 2yr (trader benchmark; quicker to reprice than 3M)
+  us_2s10s_spread: {
+    type: "derived",
+    components: ["us_10yr_yield", "us_2yr_yield"],
+    fn: ([us10, us2]) => alignAndCompute(us10, us2, (a, b) => a - b),
+  },
+
   // Yield curve shapes — 10yr minus 3M for all four countries (consistent methodology)
   us_yield_spread: {
     type: "derived",
@@ -105,10 +112,8 @@ const HISTORY_SOURCES: Record<string, HistorySource> = {
   us_hy_spread:          { type: "fred", seriesId: "BAMLH0A0HYM2" },
   // TODO: verify FRED ID — may be Euro IG, not Global
   global_corp_ig_spread: { type: "fred", seriesId: "BAMLHE00EHYIOAS" },
-  // Credit spread ETF proxies — Yahoo Finance (price, not OAS; falling price = widening spreads)
-  global_hy_spread:      { type: "yahoo", ticker: "HYXU" },
-  em_usd_spread:         { type: "yahoo", ticker: "EMB" },
-  em_lc_spread:          { type: "yahoo", ticker: "EMLC" },
+  // Euro HY — ICE BofA Euro High Yield OAS (proper spread series, bps via FRED)
+  euro_hy_spread: { type: "fred", seriesId: "BAMLHE00EHYIOAS" },
 
   // S&P 500 Sector ETFs — for intra-market correlation
   sp500_xlk: { type: "yahoo", ticker: "XLK" },
@@ -510,7 +515,9 @@ async function main() {
 
     const { error } = await supabase
       .from("macro_indicators")
-      .update({
+      .upsert({
+        indicator: slug,
+        value: currentValue,
         ma_20: signals.ma_20,
         ma_50: signals.ma_50,
         ma_200: signals.ma_200,
@@ -528,8 +535,7 @@ async function main() {
         chg_21d,
         chg_63d,
         chg_252d,
-      })
-      .eq("indicator", slug);
+      }, { onConflict: "indicator" });
 
     if (error) {
       console.warn(`[history] Error updating signals for ${slug}: ${error.message}`);

@@ -28,20 +28,16 @@ export default async function DashboardPage() {
     fetchAllEuropeanCompanies().catch(() => []),
   ]);
 
+  const lastSyncTime = fmtSyncTime(lastSync?.finished_at ?? null);
+
   return (
     <main className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-2">
+        <div className="max-w-7xl mx-auto">
           <h1 className="text-lg font-semibold text-gray-900">
             Markets Dashboard
           </h1>
-          <p className="text-xs text-gray-400">
-            Last synced:{" "}
-            <span className="font-medium text-gray-600">
-              {fmtSyncTime(lastSync?.finished_at ?? null)}
-            </span>
-          </p>
         </div>
       </div>
 
@@ -56,7 +52,7 @@ export default async function DashboardPage() {
             </p>
           </div>
         ) : (
-          <DashboardTabs indicators={indicators} correlations={correlations} curveHistory={curveHistory} spreadHistory={spreadHistory} sp500Rows={sp500Rows} europeRows={europeRows} />
+          <DashboardTabs indicators={indicators} correlations={correlations} curveHistory={curveHistory} spreadHistory={spreadHistory} sp500Rows={sp500Rows} europeRows={europeRows} lastSyncTime={lastSyncTime} />
         )}
       </div>
     </main>
